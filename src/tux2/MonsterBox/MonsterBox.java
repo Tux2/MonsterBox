@@ -103,7 +103,7 @@ public class MonsterBox extends JavaPlugin {
         }
     }
     
-    public static boolean hasPermissions(Player player, String node) {
+    public boolean hasPermissions(Player player, String node) {
         if (Permissions != null) {
             return Permissions.has(player, node);
         } else {

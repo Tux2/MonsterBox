@@ -28,39 +28,43 @@ public class MonsterBoxCommands implements CommandExecutor {
 				if(plugin.hasPermissions(player, "monsterbox.set")) {
 					if(args.length > 1) {
 						if(args[0].trim().equalsIgnoreCase("set") && player.getTargetBlock(plugin.transparentBlocks, 40).getTypeId() == 52) {
-							if(plugin.useiconomy && plugin.iConomy != null) {
-								if(plugin.hasPermissions(player, "monsterbox.free")) {
-									if(setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
-										player.sendMessage(ChatColor.DARK_GREEN + "Poof! That mob spawner is now a " + args[1] + " spawner.");
-										return true;
-									}else {
-										player.sendMessage(ChatColor.RED + "Invalid mob type.");
-									}
-								}else if(plugin.iConomy.hasAccount(player.getName())) {
-									Holdings balance = plugin.iConomy.getAccount(player.getName()).getHoldings();
-									if(balance.hasEnough(plugin.iconomyprice)) {
+							if(plugin.hasPermissions(player, "monsterbox.spawn." + args[1].toLowerCase())) {
+								if(plugin.useiconomy && plugin.iConomy != null) {
+									if(plugin.hasPermissions(player, "monsterbox.free")) {
 										if(setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
-											balance.subtract(plugin.iconomyprice);		
-											player.sendMessage(ChatColor.DARK_GREEN + "Poof! That mob spawner is now a " + args[1] + " spawner.");
+											player.sendMessage(ChatColor.DARK_GREEN + "Poof! That mob spawner is now a " + args[1].toLowerCase() + " spawner.");
 											return true;
 										}else {
 											player.sendMessage(ChatColor.RED + "Invalid mob type.");
 										}
-									}else {
-										player.sendMessage(ChatColor.RED + "You need " + plugin.iConomy.format(plugin.iconomyprice) + " to set the type of monster spawner!");
-									}
-							    } else {
-							    	player.sendMessage(ChatColor.RED + "You need a bank account and " + plugin.iConomy.format(plugin.iconomyprice) + " to set the type of monster spawner!");
-							    }
-							}else {
-								if(setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
-									player.sendMessage(ChatColor.DARK_GREEN + "Poof! That mob spawner is now a " + args[1] + " spawner.");
-									return true;
+									}else if(plugin.iConomy.hasAccount(player.getName())) {
+										Holdings balance = plugin.iConomy.getAccount(player.getName()).getHoldings();
+										if(balance.hasEnough(plugin.iconomyprice)) {
+											if(setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
+												balance.subtract(plugin.iconomyprice);		
+												player.sendMessage(ChatColor.DARK_GREEN + "Poof! That mob spawner is now a " + args[1].toLowerCase() + " spawner.");
+												return true;
+											}else {
+												player.sendMessage(ChatColor.RED + "Invalid mob type.");
+											}
+										}else {
+											player.sendMessage(ChatColor.RED + "You need " + plugin.iConomy.format(plugin.iconomyprice) + " to set the type of monster spawner!");
+										}
+								    } else {
+								    	player.sendMessage(ChatColor.RED + "You need a bank account and " + plugin.iConomy.format(plugin.iconomyprice) + " to set the type of monster spawner!");
+								    }
 								}else {
-									player.sendMessage(ChatColor.RED + "Invalid mob type.");
+									if(setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
+										player.sendMessage(ChatColor.DARK_GREEN + "Poof! That mob spawner is now a " + args[1].toLowerCase() + " spawner.");
+										return true;
+									}else {
+										player.sendMessage(ChatColor.RED + "Invalid mob type.");
+									}
 								}
+							}else {
+								player.sendMessage(ChatColor.RED + "You don't have permission to create a " + args[1].toLowerCase() + " spawner.");
+								return true;
 							}
-							
 						} else {
 							return false;
 						}
