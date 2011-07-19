@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -34,11 +35,13 @@ public class MonsterBox extends JavaPlugin {
     private final MonsterBoxCommands commandL = new MonsterBoxCommands(this);
     private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
     private static PermissionHandler Permissions;
+    public MonsterBoxBlockListener bl;
     public iConomy iConomy = null;
 	boolean useiconomy = false;
 	public double iconomyprice = 0.0;
 	public String version = "0.1";
     public HashSet<Byte> transparentBlocks = new HashSet<Byte>();
+    ConcurrentHashMap<String, Integer> playermonsterspawner = new ConcurrentHashMap<String, Integer>();
 
     public MonsterBox() {
         super();
@@ -62,11 +65,16 @@ public class MonsterBox extends JavaPlugin {
     	setupPermissions();
         // Register our events
         PluginManager pm = getServer().getPluginManager();
+        bl = new MonsterBoxBlockListener(this);
+        MonsterBoxPlayerListener pl = new MonsterBoxPlayerListener(this);
         if(useiconomy ) {
         	pm.registerEvent(Type.PLUGIN_ENABLE, serverListener, Priority.Monitor, this);
             pm.registerEvent(Type.PLUGIN_DISABLE, serverListener, Priority.Monitor, this);
         }
-        
+        pm.registerEvent(Type.BLOCK_BREAK, bl, Priority.Monitor, this);
+        pm.registerEvent(Type.BLOCK_PLACE, bl, Priority.Monitor, this);
+        pm.registerEvent(Type.PLAYER_INTERACT, pl, Priority.Monitor, this);
+        pm.registerEvent(Type.PLAYER_ITEM_HELD, pl, Priority.Monitor, this);
         PluginCommand batchcommand = this.getCommand("mbox");
 		batchcommand.setExecutor(commandL);
         // EXAMPLE: Custom code, here we just output some info so we can check all is well

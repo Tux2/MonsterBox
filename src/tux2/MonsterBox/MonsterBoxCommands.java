@@ -1,6 +1,7 @@
 package tux2.MonsterBox;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,9 +26,9 @@ public class MonsterBoxCommands implements CommandExecutor {
 		if (sender instanceof Player) {
 			Player player = (Player)sender;
 			if(commandLabel.equalsIgnoreCase("mbox")){
-				if(plugin.hasPermissions(player, "monsterbox.set")) {
-					if(args.length > 1) {
-						if(args[0].trim().equalsIgnoreCase("set") && player.getTargetBlock(plugin.transparentBlocks, 40).getTypeId() == 52) {
+				if(args.length > 1) {
+					if(args[0].trim().equalsIgnoreCase("set") && player.getTargetBlock(plugin.transparentBlocks, 40).getTypeId() == 52) {
+						if(plugin.hasPermissions(player, "monsterbox.set")) {
 							if(plugin.hasPermissions(player, "monsterbox.spawn." + args[1].toLowerCase())) {
 								if(plugin.useiconomy && plugin.iConomy != null) {
 									if(plugin.hasPermissions(player, "monsterbox.free")) {
@@ -66,14 +67,39 @@ public class MonsterBoxCommands implements CommandExecutor {
 								return true;
 							}
 						} else {
-							return false;
+							player.sendMessage(ChatColor.RED + "You don't have permission to change spawner types!");
 						}
 					} else {
-						player.sendMessage(ChatColor.GREEN + "To set the Spawner type: /mb set <mobname>");
+						return false;
+					}
+				} else if(args.length == 1) {
+					if(args[0].equalsIgnoreCase("get")) {
+						if(plugin.hasPermissions(player, "monsterbox.view")) {
+							Block targetblock = player.getTargetBlock(plugin.transparentBlocks, 40);
+							if(targetblock.getType() == Material.MOB_SPAWNER) {
+								try {
+									CreatureSpawner theSpawner = (CreatureSpawner) targetblock.getState();
+									String monster = theSpawner.getCreatureTypeId().toLowerCase();
+									player.sendMessage(ChatColor.GREEN + "That is a " + ChatColor.RED + monster + ChatColor.GREEN + " spawner.");
+							        return true;
+								}catch (Exception e) {
+									return false;
+								}
+							}else {
+								player.sendMessage(ChatColor.RED + "You must target a MobSpawner first!");
+								return true;
+							}
+						}else {
+							player.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+							return true;
+						}
+					} else {
+						player.sendMessage(ChatColor.GREEN + "To get the Spawner type: /mbox get");
 					}
 				} else {
-					player.sendMessage(ChatColor.RED + "You don't have permission to change spawner types!");
+					player.sendMessage(ChatColor.GREEN + "To set the Spawner type: /mbox set <mobname>");
 				}
+				
 			}
 		}
 		return false;
