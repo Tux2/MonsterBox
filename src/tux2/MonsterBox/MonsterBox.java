@@ -19,9 +19,11 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
 
-import com.iConomy.iConomy;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
+import com.nijikokun.register.Register;
+import com.nijikokun.register.payment.Method;
+import com.nijikokun.register.payment.Methods;
 
 /**
  * MonsterBox for Bukkit
@@ -36,10 +38,10 @@ public class MonsterBox extends JavaPlugin {
     private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
     private static PermissionHandler Permissions;
     public MonsterBoxBlockListener bl;
-    public iConomy iConomy = null;
+    public Register iConomy = null;
 	boolean useiconomy = false;
 	public double iconomyprice = 0.0;
-	public String version = "0.1";
+	public String version = "0.3";
     public HashSet<Byte> transparentBlocks = new HashSet<Byte>();
     ConcurrentHashMap<String, Integer> playermonsterspawner = new ConcurrentHashMap<String, Integer>();
 
@@ -115,7 +117,7 @@ public class MonsterBox extends JavaPlugin {
         if (Permissions != null) {
             return Permissions.has(player, node);
         } else {
-            return player.isOp();
+            return player.hasPermission(node);
         }
     }
     
@@ -131,7 +133,7 @@ public class MonsterBox extends JavaPlugin {
 				Properties themapSettings = new Properties();
 				themapSettings.load(new FileInputStream(configFile));
 		        
-		        String iconomy = themapSettings.getProperty("useiConomy", "false");
+		        String iconomy = themapSettings.getProperty("useEconomy", "false");
 		        String price = themapSettings.getProperty("price", "0.0");
 		        //If the version isn't set, the file must be at 0.2
 		        String theversion = themapSettings.getProperty("version", "0.1");
@@ -149,7 +151,12 @@ public class MonsterBox extends JavaPlugin {
 			    } catch (Exception ex) {
 			    	
 			    }
-			    if(dbversion < 0.1) {
+			    if(dbversion < 0.3) {
+			    	//If we are using the old config file let's convert that variable... otherwise we won't want to do that...
+			    	if(dbversion == 0.1) {
+				        String sconomy = themapSettings.getProperty("useiConomy", "false");
+					    useiconomy = stringToBool(sconomy);
+			    	}
 			    	updateIni();
 			    }
 			} catch (IOException e) {
@@ -158,7 +165,7 @@ public class MonsterBox extends JavaPlugin {
 		}else {
 			System.out.println("[MonsterBox] Configuration file not found");
 
-			System.out.println("[MonsterBox] + creating folder plugins/MapClone");
+			System.out.println("[MonsterBox] + creating folder plugins/MonsterBox");
 			folder.mkdir();
 
 			System.out.println("[MonsterBox] - creating file settings.ini");
@@ -171,8 +178,8 @@ public class MonsterBox extends JavaPlugin {
 			BufferedWriter outChannel = new BufferedWriter(new FileWriter("plugins/MonsterBox/settings.ini"));
 			outChannel.write("#This is the main MonsterBos config file\n" +
 					"#\n" +
-					"# useiConomy: Charge to change monster spawner type using iConomy\n" +
-					"useiConomy = " + useiconomy + "\n" +
+					"# useiConomy: Charge to change monster spawner type using your economy system\n" +
+					"useEconomy = " + useiconomy + "\n" +
 					"# price: The price to change monster spawner type\n" +
 					"price = " + iconomyprice + "\n\n" +
 					"#Do not change anything below this line unless you know what you are doing!\n" +
@@ -182,6 +189,22 @@ public class MonsterBox extends JavaPlugin {
 			System.out.println("[MonsterBox] - file creation failed, using defaults.");
 		}
 		
+	}
+	
+	public boolean hasEconomy() {
+		if(iConomy != null) {
+			return Methods.hasMethod();
+		}else {
+			return false;
+		}
+	}
+	
+	public Method getEconomy() {
+		if(iConomy != null) {
+			return Methods.getMethod();
+		}else {
+			return null;
+		}
 	}
 	
 	private synchronized boolean stringToBool(String thebool) {

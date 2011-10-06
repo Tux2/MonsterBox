@@ -1,0 +1,132 @@
+name: MonsterBox
+main: tux2.MonsterBox.MonsterBox
+version: 0.2
+commands:
+   mbox:
+      description: Sets the monster spawner you are looking at to the specified mob type.
+      usage: |
+       /mbox set <mob name>
+
+# SuperPerms data
+permissions:
+    monsterbox.*:
+        default: op
+        description: Gives access to all commands and abilities
+        children:
+            monsterbox.set: true
+            monsterbox.drops: true
+            monsterbox.free: true
+            monsterbox.place: true
+            monsterbox.view: true
+            monsterbox.spawn.*: true
+    monsterbox.spawn.*:
+        default: op
+        description: Gives access to chsnge a mob spawner to any type
+        children:
+            monsterbox.spawn.pig: true
+            monsterbox.spawn.chicken: true
+            monsterbox.spawn.cow: true
+            monsterbox.spawn.sheep: true
+            monsterbox.spawn.squid: true
+            monsterbox.spawn.creeper: true
+            monsterbox.spawn.ghast: true
+            monsterbox.spawn.pigzombie: true
+            monsterbox.spawn.skeleton: true
+            monsterbox.spawn.spider: true
+            monsterbox.spawn.zombie: true
+            monsterbox.spawn.slime: true
+            monsterbox.spawn.monster: true
+            monsterbox.spawn.giant: true
+            monsterbox.spawn.wolf: true
+            monsterbox.spawn.cavespider: true
+            monsterbox.spawn.enderman: true
+            monsterbox.spawn.silverfish: true
+    monsterbox.set:
+        description: Allows you to set a monster spawner type.
+        default: op
+        command: "/mbox set [monster]"
+    monsterbox.view:
+        description: Allows you to get the type of the monster spawner.
+        default: op
+        command: "/mbox get"
+    monsterbox.drops:
+        description: Allows the ability for the player to recieve a drop from breaking spawners.
+        default: op
+    monsterbox.free:
+        description: if an economy is enabled this node lets this group/user use the /mbox set command for free
+        default: op
+    monsterbox.place:
+        description: Allows you to place any spawner block
+        default: op
+    monsterbox.spawn.pig:
+        description: Allows you to set any spawner to be a pig spawner.
+        default: op
+        command: "/mbox set pig"
+    monsterbox.spawn.chicken:
+        description: Allows you to set any spawner to be a chicken spawner.
+        default: op
+        command: "/mbox set chicken"
+    monsterbox.spawn.cow:
+        description: Allows you to set any spawner to be a cow spawner.
+        default: op
+        command: "/mbox set cow"
+    monsterbox.spawn.sheep:
+        description: Allows you to set any spawner to be a sheep spawner.
+        default: op
+        command: "/mbox set sheep"
+    monsterbox.spawn.squid:
+        description: Allows you to set any spawner to be a squid spawner.
+        default: op
+        command: "/mbox set squid"
+    monsterbox.spawn.creeper:
+        description: Allows you to set any spawner to be a creeper spawner.
+        default: op
+        command: "/mbox set creeper"
+    monsterbox.spawn.ghast:
+        description: Allows you to set any spawner to be a ghast spawner.
+        default: op
+        command: "/mbox set ghast"
+    monsterbox.spawn.pigzombie:
+        description: Allows you to set any spawner to be a pig zombie spawner.
+        default: op
+        command: "/mbox set pigzombie"
+    monsterbox.spawn.skeleton:
+        description: Allows you to set any spawner to be a skeleton spawner.
+        default: op
+        command: "/mbox set skeleton"
+    monsterbox.spawn.spider:
+        description: Allows you to set any spawner to be a spider spawner.
+        default: op
+        command: "/mbox set spider"
+    monsterbox.spawn.zombie:
+        description: Allows you to set any spawner to be a zombie spawner.
+        default: op
+        command: "/mbox set zombie"
+    monsterbox.spawn.slime:
+        description: Allows you to set any spawner to be a slime spawner.
+        default: op
+        command: "/mbox set slime"
+    monsterbox.spawn.monster:
+        description: Allows you to set any spawner to be a monster (aka steve) spawner.
+        default: op
+        command: "/mbox set monster"
+    monsterbox.spawn.giant:
+        description: Allows you to set any spawner to be a giant spawner.
+        default: op
+        command: "/mbox set giant"
+    monsterbox.spawn.wolf:
+        description: Allows you to set any spawner to be a wolf spawner.
+        default: op
+        command: "/mbox set wolf"
+    monsterbox.spawn.cavespider:
+        description: Allows you to set any spawner to be a cave spider spawner.
+        default: op
+        command: "/mbox set cavespider"
+    monsterbox.spawn.enderman:
+        description: Allows you to set any spawner to be an enderman spawner.
+        default: op
+        command: "/mbox set enderman"
+    monsterbox.spawn.silverfish:
+        description: Allows you to set any spawner to be a silverfish spawner.
+        default: op
+        command: "/mbox set silverfish"

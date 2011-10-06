@@ -5,7 +5,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.entity.Creature;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockListener;
@@ -35,6 +34,9 @@ public class MonsterBoxBlockListener extends BlockListener {
 		intmobs.put(new Integer(12), "Monster");
 		intmobs.put(new Integer(13), "Giant");
 		intmobs.put(new Integer(14), "Wolf");
+		intmobs.put(new Integer(15), "CaveSpider");
+		intmobs.put(new Integer(16), "Enderman");
+		intmobs.put(new Integer(17), "Silverfish");
 		stringmobs.put("Pig", new Integer(0));
 		stringmobs.put("Chicken", new Integer(1));
 		stringmobs.put("Cow", new Integer(2));
@@ -50,6 +52,9 @@ public class MonsterBoxBlockListener extends BlockListener {
 		stringmobs.put("Monster", new Integer(12));
 		stringmobs.put("Giant", new Integer(13));
 		stringmobs.put("Wolf", new Integer(14));
+		stringmobs.put("CaveSpider", new Integer(15));
+		stringmobs.put("Enderman", new Integer(16));
+		stringmobs.put("Silverfish", new Integer(17));
 	}
 	
 	public void onBlockBreak(BlockBreakEvent event) {
@@ -77,7 +82,7 @@ public class MonsterBoxBlockListener extends BlockListener {
 		        if (ct == null) {
 		            return;
 		        }
-		        theSpawner.setCreatureType(ct);
+		        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetSpawner(theSpawner, ct));
 			}else {
 				event.setCancelled(true);
 				event.getPlayer().sendMessage(ChatColor.DARK_RED + "You don't have permission to place a monster spawner.");

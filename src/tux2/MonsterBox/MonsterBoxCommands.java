@@ -8,9 +8,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
 import org.bukkit.block.*;
-import org.bukkit.inventory.ItemStack;
 
-import com.iConomy.system.Holdings;
+import com.nijikokun.register.payment.Method.MethodAccount;
 
 public class MonsterBoxCommands implements CommandExecutor {
 	
@@ -30,7 +29,7 @@ public class MonsterBoxCommands implements CommandExecutor {
 					if(args[0].trim().equalsIgnoreCase("set") && player.getTargetBlock(plugin.transparentBlocks, 40).getTypeId() == 52) {
 						if(plugin.hasPermissions(player, "monsterbox.set")) {
 							if(plugin.hasPermissions(player, "monsterbox.spawn." + args[1].toLowerCase())) {
-								if(plugin.useiconomy && plugin.iConomy != null) {
+								if(plugin.useiconomy && plugin.hasEconomy()) {
 									if(plugin.hasPermissions(player, "monsterbox.free")) {
 										if(setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
 											player.sendMessage(ChatColor.DARK_GREEN + "Poof! That mob spawner is now a " + args[1].toLowerCase() + " spawner.");
@@ -38,8 +37,8 @@ public class MonsterBoxCommands implements CommandExecutor {
 										}else {
 											player.sendMessage(ChatColor.RED + "Invalid mob type.");
 										}
-									}else if(plugin.iConomy.hasAccount(player.getName())) {
-										Holdings balance = plugin.iConomy.getAccount(player.getName()).getHoldings();
+									}else if(plugin.getEconomy().hasAccount(player.getName())) {
+										MethodAccount balance = plugin.getEconomy().getAccount(player.getName());
 										if(balance.hasEnough(plugin.iconomyprice)) {
 											if(setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
 												balance.subtract(plugin.iconomyprice);		
@@ -49,10 +48,10 @@ public class MonsterBoxCommands implements CommandExecutor {
 												player.sendMessage(ChatColor.RED + "Invalid mob type.");
 											}
 										}else {
-											player.sendMessage(ChatColor.RED + "You need " + plugin.iConomy.format(plugin.iconomyprice) + " to set the type of monster spawner!");
+											player.sendMessage(ChatColor.RED + "You need " + plugin.getEconomy().format(plugin.iconomyprice) + " to set the type of monster spawner!");
 										}
 								    } else {
-								    	player.sendMessage(ChatColor.RED + "You need a bank account and " + plugin.iConomy.format(plugin.iconomyprice) + " to set the type of monster spawner!");
+								    	player.sendMessage(ChatColor.RED + "You need a bank account and " + plugin.getEconomy().format(plugin.iconomyprice) + " to set the type of monster spawner!");
 								    }
 								}else {
 									if(setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
@@ -98,6 +97,15 @@ public class MonsterBoxCommands implements CommandExecutor {
 					}
 				} else {
 					player.sendMessage(ChatColor.GREEN + "To set the Spawner type: /mbox set <mobname>");
+					CreatureType[] values = CreatureType.values();
+					String mobs = "";
+					for(int i = 0; i < values.length; i++) {
+						if(i > 0) {
+							mobs = mobs + ", ";
+						}
+						mobs = mobs + values[i].getName();
+					}
+					player.sendMessage(ChatColor.GREEN + "Valid mob types: " + mobs);
 				}
 				
 			}
@@ -110,6 +118,8 @@ public class MonsterBoxCommands implements CommandExecutor {
 			CreatureSpawner theSpawner = (CreatureSpawner) targetBlock.getState();
 			if (type.equalsIgnoreCase("PigZombie")) {
 	    		type = "PigZombie";
+	    	}else if (type.equalsIgnoreCase("CaveSpider")) {
+	    		type = "CaveSpider";
 	    	}else {
 	    		type = this.capitalCase(type);
 	    	}
