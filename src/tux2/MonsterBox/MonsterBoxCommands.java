@@ -8,6 +8,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
 import org.bukkit.block.*;
+import org.getspout.spoutapi.SpoutManager;
+import org.getspout.spoutapi.player.SpoutPlayer;
 
 import com.nijikokun.register.payment.Method.MethodAccount;
 
@@ -31,7 +33,7 @@ public class MonsterBoxCommands implements CommandExecutor {
 							if(plugin.hasPermissions(player, "monsterbox.spawn." + args[1].toLowerCase())) {
 								if(plugin.useiconomy && plugin.hasEconomy()) {
 									if(plugin.hasPermissions(player, "monsterbox.free")) {
-										if(setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
+										if(plugin.setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
 											player.sendMessage(ChatColor.DARK_GREEN + "Poof! That mob spawner is now a " + args[1].toLowerCase() + " spawner.");
 											return true;
 										}else {
@@ -39,22 +41,22 @@ public class MonsterBoxCommands implements CommandExecutor {
 										}
 									}else if(plugin.getEconomy().hasAccount(player.getName())) {
 										MethodAccount balance = plugin.getEconomy().getAccount(player.getName());
-										if(balance.hasEnough(plugin.iconomyprice)) {
-											if(setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
-												balance.subtract(plugin.iconomyprice);		
+										if(balance.hasEnough(plugin.getMobPrice(args[1]))) {
+											if(plugin.setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
+												balance.subtract(plugin.getMobPrice(args[1]));
 												player.sendMessage(ChatColor.DARK_GREEN + "Poof! That mob spawner is now a " + args[1].toLowerCase() + " spawner.");
 												return true;
 											}else {
 												player.sendMessage(ChatColor.RED + "Invalid mob type.");
 											}
 										}else {
-											player.sendMessage(ChatColor.RED + "You need " + plugin.getEconomy().format(plugin.iconomyprice) + " to set the type of monster spawner!");
+											player.sendMessage(ChatColor.RED + "You need " + plugin.getEconomy().format(plugin.getMobPrice(args[1])) + " to set the type of monster spawner!");
 										}
 								    } else {
-								    	player.sendMessage(ChatColor.RED + "You need a bank account and " + plugin.getEconomy().format(plugin.iconomyprice) + " to set the type of monster spawner!");
+								    	player.sendMessage(ChatColor.RED + "You need a bank account and " + plugin.getEconomy().format(plugin.getMobPrice(args[1])) + " to set the type of monster spawner!");
 								    }
 								}else {
-									if(setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
+									if(plugin.setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
 										player.sendMessage(ChatColor.DARK_GREEN + "Poof! That mob spawner is now a " + args[1].toLowerCase() + " spawner.");
 										return true;
 									}else {
@@ -72,7 +74,31 @@ public class MonsterBoxCommands implements CommandExecutor {
 						return false;
 					}
 				} else if(args.length == 1) {
-					if(args[0].equalsIgnoreCase("get")) {
+					if(args[0].trim().equalsIgnoreCase("set") && player.getTargetBlock(plugin.transparentBlocks, 40).getTypeId() == 52) {
+						if(plugin.usespout != null) {
+							SpoutPlayer splayer = SpoutManager.getPlayer(player);
+							if(splayer.isSpoutCraftEnabled()) {
+								splayer.closeActiveWindow();
+								CreatureSpawner theSpawner = (CreatureSpawner) player.getTargetBlock(plugin.transparentBlocks, 40).getState();
+								String monster = theSpawner.getCreatureTypeId().toLowerCase();
+								plugin.ss.createMonsterGUI("This is currently a " + monster + " spawner.", !plugin.hasPermissions(splayer, "monsterbox.free"), splayer);
+								return true;
+							}
+						}else {
+							player.sendMessage(ChatColor.GREEN + "To set the Spawner type: /mbox set <mobname>");
+							CreatureType[] values = CreatureType.values();
+							String mobs = "";
+							for(int i = 0; i < values.length; i++) {
+								if(i > 0) {
+									mobs = mobs + ", ";
+								}
+								mobs = mobs + values[i].getName();
+							}
+							player.sendMessage(ChatColor.GREEN + "Valid mob types: " + mobs);
+							return true;
+						}
+						
+					}else if(args[0].equalsIgnoreCase("get")) {
 						if(plugin.hasPermissions(player, "monsterbox.view")) {
 							Block targetblock = player.getTargetBlock(plugin.transparentBlocks, 40);
 							if(targetblock.getType() == Material.MOB_SPAWNER) {
@@ -112,31 +138,5 @@ public class MonsterBoxCommands implements CommandExecutor {
 		}
 		return false;
 	}
-	
-	private boolean setSpawner(Block targetBlock, String type) {
-		try {
-			CreatureSpawner theSpawner = (CreatureSpawner) targetBlock.getState();
-			if (type.equalsIgnoreCase("PigZombie")) {
-	    		type = "PigZombie";
-	    	}else if (type.equalsIgnoreCase("CaveSpider")) {
-	    		type = "CaveSpider";
-	    	}else {
-	    		type = this.capitalCase(type);
-	    	}
-	    	CreatureType ct = CreatureType.fromName(type);
-	        if (ct == null) {
-	            return false;
-	        }
-	        theSpawner.setCreatureType(ct);
-	        return true;
-		}catch (Exception e) {
-			return false;
-		}
-	}
-	
-	private String capitalCase(String s)
-    {
-        return s.toUpperCase().charAt(0) + s.toLowerCase().substring(1);
-    }
 
 }

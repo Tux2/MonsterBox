@@ -1,8 +1,0 @@
-name: MonsterBox
-main: tux2.MonsterBox.MonsterBox
-version: 0.2
-commands:
-   mbox:
-      description: Sets the monster spawner you are looking at to the specified mob type.
-      usage: |
-       /mbox set <mob name>

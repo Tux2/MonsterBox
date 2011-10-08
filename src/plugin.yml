@@ -1,11 +1,12 @@
 name: MonsterBox
 main: tux2.MonsterBox.MonsterBox
-version: 0.2
+version: 0.4
 commands:
    mbox:
       description: Sets the monster spawner you are looking at to the specified mob type.
       usage: |
        /mbox set <mob name>
+softdepend: [Spout]
 
 # SuperPerms data
 permissions:
@@ -21,7 +22,7 @@ permissions:
             monsterbox.spawn.*: true
     monsterbox.spawn.*:
         default: op
-        description: Gives access to chsnge a mob spawner to any type
+        description: Gives access to change a mob spawner to any type
         children:
             monsterbox.spawn.pig: true
             monsterbox.spawn.chicken: true

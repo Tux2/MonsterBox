@@ -7,10 +7,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
@@ -18,6 +24,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
+import org.getspout.spout.Spout;
 
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
@@ -34,20 +41,26 @@ public class MonsterBox extends JavaPlugin {
     //private final MonsterBoxPlayerListener playerListener = new MonsterBoxPlayerListener(this);
     //private final MonsterBoxBlockListener blockListener = new MonsterBoxBlockListener(this);
     private final MonsterBoxServerListener serverListener = new MonsterBoxServerListener(this);
-    private final MonsterBoxCommands commandL = new MonsterBoxCommands(this);
     private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
+    private final ConcurrentHashMap<String, Double> mobprice = new ConcurrentHashMap<String, Double>();
     private static PermissionHandler Permissions;
     public MonsterBoxBlockListener bl;
     public Register iConomy = null;
 	boolean useiconomy = false;
 	public double iconomyprice = 0.0;
-	public String version = "0.3";
+	public Spout usespout = null;
+	public boolean separateprices = false;
+	public int tool = Material.GOLD_SWORD.getId();
+	public int buttonwidth = 100;
+	public String version = "0.4";
+	public SpoutStuff ss = null;
     public HashSet<Byte> transparentBlocks = new HashSet<Byte>();
     ConcurrentHashMap<String, Integer> playermonsterspawner = new ConcurrentHashMap<String, Integer>();
 
     public MonsterBox() {
         super();
         loadconfig();
+        loadprices();
         
       //Setting transparent blocks.
         transparentBlocks.add((byte) 0); // Air
@@ -63,8 +76,71 @@ public class MonsterBox extends JavaPlugin {
 
    
 
-    public void onEnable() {
+    private void loadprices() {
+
+		File folder = new File("plugins/MonsterBox");
+
+		// check for existing file
+		File configFile = new File("plugins/MonsterBox/prices.ini");
+		
+		//if it exists, let's read it, if it doesn't, let's create it.
+		if (configFile.exists()) {
+			try {
+				mobprice.clear();
+				Properties theprices = new Properties();
+				theprices.load(new FileInputStream(configFile));
+				Iterator<Entry<Object, Object>> iprices = theprices.entrySet().iterator();
+				while(iprices.hasNext()) {
+					Entry<Object, Object> price = iprices.next();
+					try {
+						mobprice.put(price.getKey().toString().toLowerCase(), new Double(price.getValue().toString()));
+					}catch (NumberFormatException ex) {
+						System.out.println("[MonsterBox] Unable to parse the value for " + price.getKey().toString());
+					}
+				}
+			} catch (IOException e) {
+				
+			}
+			//A quick and dirty way to see if there are any new mobs we need to add to the list
+			if(mobprice.size() < CreatureType.values().length) {
+				System.out.println("[MonsterBox] - New mobs found! Updating prices.ini");
+				createprices();
+			}
+		}else {
+			System.out.println("[MonsterBox] Price file not found");
+			folder.mkdir();
+
+			System.out.println("[MonsterBox] - creating file prices.ini");
+			createprices();
+		}
+		
+	}
+
+
+
+	private void createprices() {
+		try {
+			BufferedWriter outChannel = new BufferedWriter(new FileWriter("plugins/MonsterBox/prices.ini"));
+			outChannel.write("#This config file contains all the separate prices for all the mobs\n" +
+					"# if the option separateprices is true\n" +
+					"\n" +
+					"\n");
+			CreatureType[] mobs = CreatureType.values();
+			for(CreatureType mob : mobs) {
+				outChannel.write(mob.getName() + " = " + String.valueOf(getMobPrice(mob.getName())) + "\n");
+			}
+			outChannel.close();
+		} catch (Exception e) {
+			System.out.println("[MonsterBox] - file creation failed, using defaults.");
+		}
+		
+	}
+
+
+
+	public void onEnable() {
     	setupPermissions();
+    	setupSpout();
         // Register our events
         PluginManager pm = getServer().getPluginManager();
         bl = new MonsterBoxBlockListener(this);
@@ -77,6 +153,11 @@ public class MonsterBox extends JavaPlugin {
         pm.registerEvent(Type.BLOCK_PLACE, bl, Priority.Monitor, this);
         pm.registerEvent(Type.PLAYER_INTERACT, pl, Priority.Monitor, this);
         pm.registerEvent(Type.PLAYER_ITEM_HELD, pl, Priority.Monitor, this);
+        if(usespout != null) {
+        	pm.registerEvent(Type.CUSTOM_EVENT, new MonsterBoxScreenListener(this), Priority.Normal, this);
+        	ss = new SpoutStuff(this);
+        }
+        MonsterBoxCommands commandL = new MonsterBoxCommands(this);
         PluginCommand batchcommand = this.getCommand("mbox");
 		batchcommand.setExecutor(commandL);
         // EXAMPLE: Custom code, here we just output some info so we can check all is well
@@ -113,6 +194,17 @@ public class MonsterBox extends JavaPlugin {
         }
     }
     
+    private void setupSpout() {
+    	Plugin p = getServer().getPluginManager().getPlugin("Spout");
+		if(p == null){
+			usespout = null;
+			System.out.println("[MonsterBox] Spout not detected. Disabling spout support.");
+		} else {
+			usespout = (Spout)p;
+			System.out.println("[MonsterBox] Spout detected. Spout support enabled.");
+		}
+    }
+    
     public boolean hasPermissions(Player player, String node) {
         if (Permissions != null) {
             return Permissions.has(player, node);
@@ -135,10 +227,24 @@ public class MonsterBox extends JavaPlugin {
 		        
 		        String iconomy = themapSettings.getProperty("useEconomy", "false");
 		        String price = themapSettings.getProperty("price", "0.0");
+		        String sprices = themapSettings.getProperty("separateprices", "false");
+		        String swidth = themapSettings.getProperty("buttonwidth", "100");
+		        String stool = themapSettings.getProperty("changetool", String.valueOf(Material.GOLD_SWORD.getId()));
 		        //If the version isn't set, the file must be at 0.2
 		        String theversion = themapSettings.getProperty("version", "0.1");
 			    
 			    useiconomy = stringToBool(iconomy);
+			    separateprices = stringToBool(sprices);
+			    try {
+			    	tool = Integer.parseInt(stool.trim());
+			    } catch (Exception ex) {
+			    	
+			    }
+			    try {
+			    	buttonwidth = Integer.parseInt(swidth.trim());
+			    } catch (Exception ex) {
+			    	
+			    }
 			    try {
 			    	iconomyprice = Double.parseDouble(price.trim());
 			    } catch (Exception ex) {
@@ -151,7 +257,7 @@ public class MonsterBox extends JavaPlugin {
 			    } catch (Exception ex) {
 			    	
 			    }
-			    if(dbversion < 0.3) {
+			    if(dbversion < 0.4) {
 			    	//If we are using the old config file let's convert that variable... otherwise we won't want to do that...
 			    	if(dbversion == 0.1) {
 				        String sconomy = themapSettings.getProperty("useiConomy", "false");
@@ -182,6 +288,14 @@ public class MonsterBox extends JavaPlugin {
 					"useEconomy = " + useiconomy + "\n" +
 					"# price: The price to change monster spawner type\n" +
 					"price = " + iconomyprice + "\n\n" +
+					"# separateprices: If you want separate prices for all the different types of mobs\n" +
+					"# set this to true.\n" +
+					"separateprices = " + separateprices + "\n" +
+					"# changetool is the tool that opens up the spout gui for changing the monster spawner.\n" +
+					"changetool = " + tool + "\n" +
+					"# buttonwidth changes the width of the buttons in the spoutcraft gui, just in case the\n" +
+					"# text doesn't fit for you.\n" +
+					"buttonwidth = " + buttonwidth + "\n\n" +
 					"#Do not change anything below this line unless you know what you are doing!\n" +
 					"version = " + version );
 			outChannel.close();
@@ -215,6 +329,42 @@ public class MonsterBox extends JavaPlugin {
 	    	result = false;
 	    }
 		return result;
+	}
+
+
+
+	boolean setSpawner(Block targetBlock, String type) {
+		try {
+			CreatureSpawner theSpawner = (CreatureSpawner) targetBlock.getState();
+			if (type.equalsIgnoreCase("PigZombie")) {
+	    		type = "PigZombie";
+	    	}else if (type.equalsIgnoreCase("CaveSpider")) {
+	    		type = "CaveSpider";
+	    	}else {
+	    		type = this.capitalCase(type);
+	    	}
+	    	CreatureType ct = CreatureType.fromName(type);
+	        if (ct == null) {
+	            return false;
+	        }
+	        theSpawner.setCreatureType(ct);
+	        return true;
+		}catch (Exception e) {
+			return false;
+		}
+	}
+
+	String capitalCase(String s)
+	{
+	    return s.toUpperCase().charAt(0) + s.toLowerCase().substring(1);
+	}
+	
+	public double getMobPrice(String name) {
+		if(separateprices && mobprice.containsKey(name.toLowerCase())) {
+			return mobprice.get(name.toLowerCase()).doubleValue();
+		}else {
+			return iconomyprice;
+		}
 	}
 }
 
