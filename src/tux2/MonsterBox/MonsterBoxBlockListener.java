@@ -55,6 +55,12 @@ public class MonsterBoxBlockListener extends BlockListener {
 		intmobs.put(new Integer(59), "CaveSpider");
 		intmobs.put(new Integer(58), "Enderman");
 		intmobs.put(new Integer(60), "Silverfish");
+		intmobs.put(new Integer(63), "EnderDragon");
+		intmobs.put(new Integer(120), "Villager");
+		intmobs.put(new Integer(61), "Blaze");
+		intmobs.put(new Integer(96), "MushroomCow");
+		intmobs.put(new Integer(62), "MagmaCube");
+		intmobs.put(new Integer(97), "Snowman");
 		stringmobs.put("Pig", new Integer(90));
 		stringmobs.put("Chicken", new Integer(93));
 		stringmobs.put("Cow", new Integer(92));
@@ -73,6 +79,12 @@ public class MonsterBoxBlockListener extends BlockListener {
 		stringmobs.put("CaveSpider", new Integer(59));
 		stringmobs.put("Enderman", new Integer(58));
 		stringmobs.put("Silverfish", new Integer(60));
+		stringmobs.put("EnderDragon", new Integer(63));
+		stringmobs.put("Villager", new Integer(120));
+		stringmobs.put("Blaze", new Integer(61));
+		stringmobs.put("MushroomCow", new Integer(96));
+		stringmobs.put("MagmaCube", new Integer(62));
+		stringmobs.put("Snowman", new Integer(97));
 	}
 	
 	public void onBlockBreak(BlockBreakEvent event) {
@@ -82,8 +94,14 @@ public class MonsterBoxBlockListener extends BlockListener {
 				CreatureSpawner theSpawner = (CreatureSpawner) event.getBlock().getState();
 				String monster = theSpawner.getCreatureTypeId();
 				event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "You just broke a " + ChatColor.RED + monster.toLowerCase() + ChatColor.DARK_GREEN + " spawner.");
-				event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), 
-						new ItemStack(Material.MOB_SPAWNER, 1, stringmobs.get(monster).shortValue()));
+				if(stringmobs.containsKey(monster)) {
+					event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), 
+							new ItemStack(Material.MOB_SPAWNER, 1, stringmobs.get(monster).shortValue()));
+				}else {
+					//If we don't know the mob type, let's just set it to a pig spawner.
+					event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), 
+							new ItemStack(Material.MOB_SPAWNER, 1, (short) 90));
+				}
 			}catch (Exception e) {
 			}
 			

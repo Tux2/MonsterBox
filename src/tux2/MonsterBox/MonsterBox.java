@@ -55,6 +55,7 @@ public class MonsterBox extends JavaPlugin {
 	public String version = "0.4";
 	public SpoutStuff ss = null;
     public HashSet<Byte> transparentBlocks = new HashSet<Byte>();
+    private ConcurrentHashMap<String, String> mobcase = new ConcurrentHashMap<String, String>();
     ConcurrentHashMap<String, Integer> playermonsterspawner = new ConcurrentHashMap<String, Integer>();
 
     public MonsterBox() {
@@ -146,6 +147,7 @@ public class MonsterBox extends JavaPlugin {
 	public void onEnable() {
     	setupPermissions();
     	setupSpout();
+    	setupMobCase();
         // Register our events
         PluginManager pm = getServer().getPluginManager();
         bl = new MonsterBoxBlockListener(this);
@@ -341,10 +343,8 @@ public class MonsterBox extends JavaPlugin {
 	boolean setSpawner(Block targetBlock, String type) {
 		try {
 			CreatureSpawner theSpawner = (CreatureSpawner) targetBlock.getState();
-			if (type.equalsIgnoreCase("PigZombie")) {
-	    		type = "PigZombie";
-	    	}else if (type.equalsIgnoreCase("CaveSpider")) {
-	    		type = "CaveSpider";
+			if (mobcase.containsKey(type.toLowerCase().trim())) {
+	    		type = mobcase.get(type.toLowerCase().trim());
 	    	}else {
 	    		type = this.capitalCase(type);
 	    	}
@@ -369,6 +369,14 @@ public class MonsterBox extends JavaPlugin {
 			return mobprice.get(name.toLowerCase()).doubleValue();
 		}else {
 			return iconomyprice;
+		}
+	}
+	
+	private void setupMobCase() {
+		CreatureType[] mobs = CreatureType.values();
+		for(CreatureType mob : mobs) {
+			String mobname = mob.getName().trim();
+			mobcase.put(mobname.toLowerCase(), mobname);
 		}
 	}
 }

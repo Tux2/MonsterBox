@@ -20,9 +20,10 @@ public class SpoutStuff {
 		if(plugin.usespout != null) {
 			GenericPopup monsters = new GenericPopup();
 			CreatureType[] mobs = CreatureType.values();
-			int x = 20;
+			int x = 5;
 			int y = 20;
 			GenericLabel label = new GenericLabel(title);
+			label.setWidth(200).setHeight(20);
 			label.setTextColor(new Color(0, 200, 0)); //This makes the label green.
 			label.setAlign(WidgetAnchor.TOP_CENTER).setAnchor(WidgetAnchor.TOP_CENTER); //This puts the label at top center and align the text correctly.
 			label.shiftYPos(5);

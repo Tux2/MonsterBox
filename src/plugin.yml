@@ -1,6 +1,6 @@
 name: MonsterBox
 main: tux2.MonsterBox.MonsterBox
-version: 0.4
+version: 0.5
 commands:
    mbox:
       description: Sets the monster spawner you are looking at to the specified mob type.
@@ -42,6 +42,12 @@ permissions:
             monsterbox.spawn.cavespider: true
             monsterbox.spawn.enderman: true
             monsterbox.spawn.silverfish: true
+            monsterbox.spawn.enderdragon: true
+            monsterbox.spawn.villager: true
+            monsterbox.spawn.blaze: true
+            monsterbox.spawn.mushroomcow: true
+            monsterbox.spawn.magmacube: true
+            monsterbox.spawn.snowman: true
     monsterbox.set:
         description: Allows you to set a monster spawner type.
         default: op
@@ -131,3 +137,27 @@ permissions:
         description: Allows you to set any spawner to be a silverfish spawner.
         default: op
         command: "/mbox set silverfish"
+    monsterbox.spawn.enderdragon:
+        description: Allows you to set any spawner to be an ender dragon spawner.
+        default: op
+        command: "/mbox set EnderDragon"
+    monsterbox.spawn.villager:
+        description: Allows you to set any spawner to be a villager spawner.
+        default: op
+        command: "/mbox set villager"
+    monsterbox.spawn.blaze:
+        description: Allows you to set any spawner to be a blaze spawner.
+        default: op
+        command: "/mbox set blaze"
+    monsterbox.spawn.mushroomcow:
+        description: Allows you to set any spawner to be a mushroom cow spawner.
+        default: op
+        command: "/mbox set mushroomcow"
+    monsterbox.spawn.magmacube:
+        description: Allows you to set any spawner to be a magma cube spawner.
+        default: op
+        command: "/mbox set magmacube"
+    monsterbox.spawn.snowman:
+        description: Allows you to set any spawner to be a snowman spawner.
+        default: op
+        command: "/mbox set snowman"
