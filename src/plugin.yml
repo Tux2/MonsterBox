@@ -1,6 +1,6 @@
 name: MonsterBox
 main: tux2.MonsterBox.MonsterBox
-version: 0.5
+version: 0.6
 commands:
    mbox:
       description: Sets the monster spawner you are looking at to the specified mob type.
@@ -14,12 +14,15 @@ permissions:
         default: op
         description: Gives access to all commands and abilities
         children:
+            monsterbox.eggset: true
             monsterbox.set: true
             monsterbox.drops: true
+            monsterbox.dropegg.*: true
             monsterbox.free: true
             monsterbox.place: true
             monsterbox.view: true
             monsterbox.spawn.*: true
+            monsterbox.eggspawn.*: true
     monsterbox.spawn.*:
         default: op
         description: Gives access to change a mob spawner to any type
@@ -48,16 +51,78 @@ permissions:
             monsterbox.spawn.mushroomcow: true
             monsterbox.spawn.magmacube: true
             monsterbox.spawn.snowman: true
+    monsterbox.dropegg.*:
+        default: op
+        description: Gives access to change a mob spawner to any type
+        children:
+            monsterbox.dropegg.pig: true
+            monsterbox.dropegg.chicken: true
+            monsterbox.dropegg.cow: true
+            monsterbox.dropegg.sheep: true
+            monsterbox.dropegg.squid: true
+            monsterbox.dropegg.creeper: true
+            monsterbox.dropegg.ghast: true
+            monsterbox.dropegg.pigzombie: true
+            monsterbox.dropegg.skeleton: true
+            monsterbox.dropegg.spider: true
+            monsterbox.dropegg.zombie: true
+            monsterbox.dropegg.slime: true
+            monsterbox.dropegg.monster: true
+            monsterbox.dropegg.giant: true
+            monsterbox.dropegg.wolf: true
+            monsterbox.dropegg.cavespider: true
+            monsterbox.dropegg.enderman: true
+            monsterbox.dropegg.silverfish: true
+            monsterbox.dropegg.enderdragon: true
+            monsterbox.dropegg.villager: true
+            monsterbox.dropegg.blaze: true
+            monsterbox.dropegg.mushroomcow: true
+            monsterbox.dropegg.magmacube: true
+            monsterbox.dropegg.snowman: true
+    monsterbox.eggspawn.*:
+        default: op
+        description: Gives access to change a mob spawner to any type using eggs
+        children:
+            monsterbox.eggspawn.pig: true
+            monsterbox.eggspawn.chicken: true
+            monsterbox.eggspawn.cow: true
+            monsterbox.eggspawn.sheep: true
+            monsterbox.eggspawn.squid: true
+            monsterbox.eggspawn.creeper: true
+            monsterbox.eggspawn.ghast: true
+            monsterbox.eggspawn.pigzombie: true
+            monsterbox.eggspawn.skeleton: true
+            monsterbox.eggspawn.spider: true
+            monsterbox.eggspawn.zombie: true
+            monsterbox.eggspawn.slime: true
+            monsterbox.eggspawn.monster: true
+            monsterbox.eggspawn.giant: true
+            monsterbox.eggspawn.wolf: true
+            monsterbox.eggspawn.cavespider: true
+            monsterbox.eggspawn.enderman: true
+            monsterbox.eggspawn.silverfish: true
+            monsterbox.eggspawn.enderdragon: true
+            monsterbox.eggspawn.villager: true
+            monsterbox.eggspawn.blaze: true
+            monsterbox.eggspawn.mushroomcow: true
+            monsterbox.eggspawn.magmacube: true
+            monsterbox.eggspawn.snowman: true
     monsterbox.set:
         description: Allows you to set a monster spawner type.
         default: op
         command: "/mbox set [monster]"
+    monsterbox.eggset:
+        description: Allows you to set a monster spawner type using eggs.
+        default: op
     monsterbox.view:
         description: Allows you to get the type of the monster spawner.
         default: op
         command: "/mbox get"
     monsterbox.drops:
         description: Allows the ability for the player to recieve a drop from breaking spawners.
+        default: op
+    monsterbox.dropegg:
+        description: Allows the ability for the player to recieve an egg drop from breaking spawners.
         default: op
     monsterbox.free:
         description: if an economy is enabled this node lets this group/user use the /mbox set command for free
@@ -161,3 +226,75 @@ permissions:
         description: Allows you to set any spawner to be a snowman spawner.
         default: op
         command: "/mbox set snowman"
+    monsterbox.eggspawn.pig:
+        description: Allows you to set any spawner to be a pig spawner using eggs.
+        default: op
+    monsterbox.eggspawn.chicken:
+        description: Allows you to set any spawner to be a chicken spawner using eggs.
+        default: op
+    monsterbox.eggspawn.cow:
+        description: Allows you to set any spawner to be a cow spawner using eggs.
+        default: op
+    monsterbox.eggspawn.sheep:
+        description: Allows you to set any spawner to be a sheep spawner using eggs.
+        default: op
+    monsterbox.eggspawn.squid:
+        description: Allows you to set any spawner to be a squid spawner using eggs.
+        default: op
+    monsterbox.eggspawn.creeper:
+        description: Allows you to set any spawner to be a creeper spawner using eggs.
+        default: op
+    monsterbox.eggspawn.ghast:
+        description: Allows you to set any spawner to be a ghast spawner using eggs.
+        default: op
+    monsterbox.eggspawn.pigzombie:
+        description: Allows you to set any spawner to be a pig zombie spawner using eggs.
+        default: op
+    monsterbox.eggspawn.skeleton:
+        description: Allows you to set any spawner to be a skeleton spawner using eggs.
+        default: op
+    monsterbox.eggspawn.spider:
+        description: Allows you to set any spawner to be a spider spawner using eggs.
+        default: op
+    monsterbox.eggspawn.zombie:
+        description: Allows you to set any spawner to be a zombie spawner using eggs.
+        default: op
+    monsterbox.eggspawn.slime:
+        description: Allows you to set any spawner to be a slime spawner using eggs.
+        default: op
+    monsterbox.eggspawn.monster:
+        description: Allows you to set any spawner to be a monster (aka steve) spawner using eggs.
+        default: op
+    monsterbox.eggspawn.giant:
+        description: Allows you to set any spawner to be a giant spawner using eggs.
+        default: op
+    monsterbox.eggspawn.wolf:
+        description: Allows you to set any spawner to be a wolf spawner using eggs.
+        default: op
+    monsterbox.eggspawn.cavespider:
+        description: Allows you to set any spawner to be a cave spider spawner using eggs.
+        default: op
+    monsterbox.eggspawn.enderman:
+        description: Allows you to set any spawner to be an enderman spawner using eggs.
+        default: op
+    monsterbox.eggspawn.silverfish:
+        description: Allows you to set any spawner to be a silverfish spawner using eggs.
+        default: op
+    monsterbox.eggspawn.enderdragon:
+        description: Allows you to set any spawner to be an ender dragon spawner using eggs.
+        default: op
+    monsterbox.eggspawn.villager:
+        description: Allows you to set any spawner to be a villager spawner using eggs.
+        default: op
+    monsterbox.eggspawn.blaze:
+        description: Allows you to set any spawner to be a blaze spawner using eggs.
+        default: op
+    monsterbox.eggspawn.mushroomcow:
+        description: Allows you to set any spawner to be a mushroom cow spawner using eggs.
+        default: op
+    monsterbox.eggspawn.magmacube:
+        description: Allows you to set any spawner to be a magma cube spawner using eggs.
+        default: op
+    monsterbox.eggspawn.snowman:
+        description: Allows you to set any spawner to be a snowman spawner using eggs.
+        default: op

@@ -5,13 +5,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.entity.CreatureType;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class MonsterBoxBlockListener extends BlockListener {
+public class MonsterBoxBlockListener implements Listener {
 	
 	MonsterBox plugin;
 	public ConcurrentHashMap<Integer, String> intmobs = new ConcurrentHashMap<Integer, String>();
@@ -19,24 +20,6 @@ public class MonsterBoxBlockListener extends BlockListener {
 	
 	public MonsterBoxBlockListener(MonsterBox plugin) {
 		this.plugin = plugin;
-		intmobs.put(new Integer(0), "Pig");
-		intmobs.put(new Integer(1), "Chicken");
-		intmobs.put(new Integer(2), "Cow");
-		intmobs.put(new Integer(3), "Sheep");
-		intmobs.put(new Integer(4), "Squid");
-		intmobs.put(new Integer(5), "Creeper");
-		intmobs.put(new Integer(6), "Ghast");
-		intmobs.put(new Integer(7), "PigZombie");
-		intmobs.put(new Integer(8), "Skeleton");
-		intmobs.put(new Integer(9), "Spider");
-		intmobs.put(new Integer(10), "Zombie");
-		intmobs.put(new Integer(11), "Slime");
-		intmobs.put(new Integer(12), "Monster");
-		intmobs.put(new Integer(13), "Giant");
-		intmobs.put(new Integer(14), "Wolf");
-		intmobs.put(new Integer(15), "CaveSpider");
-		intmobs.put(new Integer(16), "Enderman");
-		intmobs.put(new Integer(17), "Silverfish");
 		intmobs.put(new Integer(90), "Pig");
 		intmobs.put(new Integer(93), "Chicken");
 		intmobs.put(new Integer(92), "Cow");
@@ -87,20 +70,22 @@ public class MonsterBoxBlockListener extends BlockListener {
 		stringmobs.put("Snowman", new Integer(97));
 	}
 	
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockBreak(BlockBreakEvent event) {
-		if(!event.isCancelled() && event.getBlock().getType() == Material.MOB_SPAWNER &&
-				plugin.hasPermissions(event.getPlayer(), "monsterbox.drops")) {
+		if(!event.isCancelled() && event.getBlock().getType() == Material.MOB_SPAWNER) {
 			try {
 				CreatureSpawner theSpawner = (CreatureSpawner) event.getBlock().getState();
 				String monster = theSpawner.getCreatureTypeId();
-				event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "You just broke a " + ChatColor.RED + monster.toLowerCase() + ChatColor.DARK_GREEN + " spawner.");
-				if(stringmobs.containsKey(monster)) {
-					event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), 
-							new ItemStack(Material.MOB_SPAWNER, 1, stringmobs.get(monster).shortValue()));
-				}else {
-					//If we don't know the mob type, let's just set it to a pig spawner.
-					event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), 
-							new ItemStack(Material.MOB_SPAWNER, 1, (short) 90));
+				if(plugin.hasPermissions(event.getPlayer(), "monsterbox.drops") || plugin.hasPermissions(event.getPlayer(), "monsterbox.dropegg")) {
+					event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "You just broke a " + ChatColor.RED + monster.toLowerCase() + ChatColor.DARK_GREEN + " spawner.");
+				}
+				if(plugin.hasPermissions(event.getPlayer(), "monsterbox.drops")) {
+					ItemStack mobstack = new ItemStack(Material.MOB_SPAWNER, 1);
+					event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), mobstack);
+				}
+				if(stringmobs.containsKey(monster) && plugin.hasPermissions(event.getPlayer(), "monsterbox.dropegg." + monster.toLowerCase())) {
+					ItemStack eggstack = new ItemStack(383, 1, stringmobs.get(monster).shortValue());
+					event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), eggstack);
 				}
 			}catch (Exception e) {
 			}
@@ -108,9 +93,12 @@ public class MonsterBoxBlockListener extends BlockListener {
 		}
 	}
 	
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockPlace(BlockPlaceEvent event) {
 		if(!event.isCancelled() && event.getBlockPlaced().getType() == Material.MOB_SPAWNER) {
 			if(plugin.hasPermissions(event.getPlayer(), "monsterbox.place")) {
+				//This code doesn't work from 1.0.1 on, so why include it...
+				/*
 				String type = intmobs.get(plugin.playermonsterspawner.get(event.getPlayer().getName()));
 				event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "You just placed a " + ChatColor.RED + type.toLowerCase() + ChatColor.DARK_GREEN + " spawner.");
 				CreatureSpawner theSpawner = (CreatureSpawner) event.getBlockPlaced().getState();
@@ -118,7 +106,7 @@ public class MonsterBoxBlockListener extends BlockListener {
 		        if (ct == null) {
 		            return;
 		        }
-		        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetSpawner(theSpawner, ct));
+		        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetSpawner(theSpawner, ct));*/
 			}else {
 				event.setCancelled(true);
 				event.getPlayer().sendMessage(ChatColor.DARK_RED + "You don't have permission to place a monster spawner.");

@@ -18,8 +18,11 @@ import org.bukkit.block.CreatureSpawner;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
+import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -56,8 +59,6 @@ public class MonsterBox extends JavaPlugin {
 	public SpoutStuff ss = null;
     public HashSet<Byte> transparentBlocks = new HashSet<Byte>();
     private ConcurrentHashMap<String, String> mobcase = new ConcurrentHashMap<String, String>();
-    ConcurrentHashMap<String, Integer> playermonsterspawner = new ConcurrentHashMap<String, Integer>();
-
     public MonsterBox() {
         super();
         loadconfig();
@@ -153,13 +154,10 @@ public class MonsterBox extends JavaPlugin {
         bl = new MonsterBoxBlockListener(this);
         MonsterBoxPlayerListener pl = new MonsterBoxPlayerListener(this);
         if(useiconomy ) {
-        	pm.registerEvent(Type.PLUGIN_ENABLE, serverListener, Priority.Monitor, this);
-            pm.registerEvent(Type.PLUGIN_DISABLE, serverListener, Priority.Monitor, this);
+            pm.registerEvents(serverListener, this);
         }
-        pm.registerEvent(Type.BLOCK_BREAK, bl, Priority.Monitor, this);
-        pm.registerEvent(Type.BLOCK_PLACE, bl, Priority.Monitor, this);
-        pm.registerEvent(Type.PLAYER_INTERACT, pl, Priority.Monitor, this);
-        pm.registerEvent(Type.PLAYER_ITEM_HELD, pl, Priority.Monitor, this);
+        pm.registerEvents(bl, this);
+        pm.registerEvents(pl, this);
         if(usespout != null) {
         	pm.registerEvent(Type.CUSTOM_EVENT, new MonsterBoxScreenListener(this), Priority.Normal, this);
         	ss = new SpoutStuff(this);
@@ -289,7 +287,7 @@ public class MonsterBox extends JavaPlugin {
 	private void updateIni() {
 		try {
 			BufferedWriter outChannel = new BufferedWriter(new FileWriter("plugins/MonsterBox/settings.ini"));
-			outChannel.write("#This is the main MonsterBos config file\n" +
+			outChannel.write("#This is the main MonsterBox config file\n" +
 					"#\n" +
 					"# useiConomy: Charge to change monster spawner type using your economy system\n" +
 					"useEconomy = " + useiconomy + "\n" +
