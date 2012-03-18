@@ -51,6 +51,7 @@ permissions:
             monsterbox.spawn.mushroomcow: true
             monsterbox.spawn.magmacube: true
             monsterbox.spawn.snowman: true
+            monsterbox.spawn.ocelot: true
     monsterbox.dropegg.*:
         default: op
         description: Gives access to change a mob spawner to any type
@@ -79,6 +80,7 @@ permissions:
             monsterbox.dropegg.mushroomcow: true
             monsterbox.dropegg.magmacube: true
             monsterbox.dropegg.snowman: true
+            monsterbox.dropegg.ocelot: true
     monsterbox.eggspawn.*:
         default: op
         description: Gives access to change a mob spawner to any type using eggs
@@ -107,6 +109,7 @@ permissions:
             monsterbox.eggspawn.mushroomcow: true
             monsterbox.eggspawn.magmacube: true
             monsterbox.eggspawn.snowman: true
+            monsterbox.eggspawn.ocelot: true
     monsterbox.set:
         description: Allows you to set a monster spawner type.
         default: op
@@ -226,6 +229,10 @@ permissions:
         description: Allows you to set any spawner to be a snowman spawner.
         default: op
         command: "/mbox set snowman"
+   monsterbox.spawn.ocelot:
+        description: Allows you to set any spawner to be a pig spawner.
+        default: op
+        command: "/mbox set ocelot"
     monsterbox.eggspawn.pig:
         description: Allows you to set any spawner to be a pig spawner using eggs.
         default: op
@@ -297,4 +304,7 @@ permissions:
         default: op
     monsterbox.eggspawn.snowman:
         description: Allows you to set any spawner to be a snowman spawner using eggs.
+        default: op
+    monsterbox.eggspawn.ocelot:
+        description: Allows you to set any spawner to be a ocelot spawner using eggs.
         default: op
