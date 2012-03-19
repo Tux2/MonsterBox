@@ -1,21 +1,21 @@
 package tux2.MonsterBox;
 
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.entity.CreatureType;
+import org.bukkit.entity.EntityType;
 
 public class SetSpawner implements Runnable {
 	
 	CreatureSpawner ts;
-	CreatureType ct;
+	CreatureTypes ct;
 
-	public SetSpawner(CreatureSpawner theSpawner, CreatureType ct) {
+	public SetSpawner(CreatureSpawner theSpawner, CreatureTypes ct) {
 		ts = theSpawner;
 		this.ct = ct;
 	}
 
 	@Override
 	public void run() {
-        ts.setCreatureType(ct);
+        ts.setSpawnedType(EntityType.valueOf(ct.toString()));
 		
 	}
 

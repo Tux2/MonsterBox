@@ -1,6 +1,5 @@
 package tux2.MonsterBox;
 
-import org.bukkit.entity.CreatureType;
 import org.getspout.spoutapi.gui.Color;
 import org.getspout.spoutapi.gui.GenericButton;
 import org.getspout.spoutapi.gui.GenericLabel;
@@ -19,7 +18,7 @@ public class SpoutStuff {
 	public void createMonsterGUI(String title, boolean showprices, SpoutPlayer splayer) {
 		if(plugin.usespout != null) {
 			GenericPopup monsters = new GenericPopup();
-			CreatureType[] mobs = CreatureType.values();
+			CreatureTypes[] mobs = CreatureTypes.values();
 			int x = 5;
 			int y = 20;
 			GenericLabel label = new GenericLabel(title);
@@ -28,12 +27,11 @@ public class SpoutStuff {
 			label.setAlign(WidgetAnchor.TOP_CENTER).setAnchor(WidgetAnchor.TOP_CENTER); //This puts the label at top center and align the text correctly.
 			label.shiftYPos(5);
 			monsters.attachWidget(plugin, label);
-			for(CreatureType mob : mobs) {
-				String price = "";
-				if(showprices && plugin.useiconomy) {
-					price = "(" + plugin.getEconomy().format(plugin.getMobPrice(mob.getName())) + ") ";
+			for(CreatureTypes mob : mobs) {
+				GenericButton tbutton = new GenericButton(mob.toString());
+				if(showprices && plugin.hasEconomy()) {
+					tbutton.setTooltip(plugin.iConomy.format(plugin.getMobPrice(mob.toString())));
 				}
-				GenericButton tbutton = new GenericButton(price + mob.getName());
 				tbutton.setX(x).setY(y);
 				tbutton.setWidth(plugin.buttonwidth).setHeight(20);
 				monsters.attachWidget(plugin, tbutton);

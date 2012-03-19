@@ -12,28 +12,23 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.milkbowl.vault.economy.Economy;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.CreatureType;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.Event.Type;
-import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
 import org.getspout.spout.Spout;
 
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
-import com.nijikokun.register.Register;
-import com.nijikokun.register.payment.Method;
-import com.nijikokun.register.payment.Methods;
 
 /**
  * MonsterBox for Bukkit
@@ -43,22 +38,23 @@ import com.nijikokun.register.payment.Methods;
 public class MonsterBox extends JavaPlugin {
     //private final MonsterBoxPlayerListener playerListener = new MonsterBoxPlayerListener(this);
     //private final MonsterBoxBlockListener blockListener = new MonsterBoxBlockListener(this);
-    private final MonsterBoxServerListener serverListener = new MonsterBoxServerListener(this);
     private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
     private final ConcurrentHashMap<String, Double> mobprice = new ConcurrentHashMap<String, Double>();
     private static PermissionHandler Permissions;
     public MonsterBoxBlockListener bl;
-    public Register iConomy = null;
+    public Economy iConomy = null;
 	boolean useiconomy = false;
 	public double iconomyprice = 0.0;
 	public Spout usespout = null;
 	public boolean separateprices = false;
 	public int tool = Material.GOLD_SWORD.getId();
-	public int buttonwidth = 100;
-	public String version = "0.4";
+	public int buttonwidth = 80;
+	public String version = "0.7";
 	public SpoutStuff ss = null;
     public HashSet<Byte> transparentBlocks = new HashSet<Byte>();
     private ConcurrentHashMap<String, String> mobcase = new ConcurrentHashMap<String, String>();
+	public String eggthrowmessage = "I'm sorry, but you can't spawn that mob.";
+	public boolean needssilktouch = false;
     public MonsterBox() {
         super();
         loadconfig();
@@ -109,7 +105,7 @@ public class MonsterBox extends JavaPlugin {
 				
 			}
 			//A quick and dirty way to see if there are any new mobs we need to add to the list
-			if(mobprice.size() < CreatureType.values().length) {
+			if(mobprice.size() < CreatureTypes.values().length) {
 				System.out.println("[MonsterBox] - New mobs found! Updating prices.ini");
 				createprices();
 			}
@@ -132,9 +128,9 @@ public class MonsterBox extends JavaPlugin {
 					"# if the option separateprices is true\n" +
 					"\n" +
 					"\n");
-			CreatureType[] mobs = CreatureType.values();
-			for(CreatureType mob : mobs) {
-				outChannel.write(mob.getName() + " = " + String.valueOf(getMobPrice(mob.getName())) + "\n");
+			CreatureTypes[] mobs = CreatureTypes.values();
+			for(CreatureTypes mob : mobs) {
+				outChannel.write(mob.toString() + " = " + String.valueOf(getMobPrice(mob.toString())) + "\n");
 			}
 			outChannel.close();
 		} catch (Exception e) {
@@ -154,12 +150,12 @@ public class MonsterBox extends JavaPlugin {
         bl = new MonsterBoxBlockListener(this);
         MonsterBoxPlayerListener pl = new MonsterBoxPlayerListener(this);
         if(useiconomy ) {
-            pm.registerEvents(serverListener, this);
+            setupEconomy();
         }
         pm.registerEvents(bl, this);
         pm.registerEvents(pl, this);
         if(usespout != null) {
-        	pm.registerEvent(Type.CUSTOM_EVENT, new MonsterBoxScreenListener(this), Priority.Normal, this);
+        	pm.registerEvents(new MonsterBoxScreenListener(this), this);
         	ss = new SpoutStuff(this);
         }
         MonsterBoxCommands commandL = new MonsterBoxCommands(this);
@@ -205,7 +201,11 @@ public class MonsterBox extends JavaPlugin {
 			usespout = null;
 			System.out.println("[MonsterBox] Spout not detected. Disabling spout support.");
 		} else {
-			usespout = (Spout)p;
+			try {
+				usespout = (Spout)p;
+			}catch (Exception e) {
+				System.out.println("[MonsterBox] Error hooking into spout. Disabling spout support.");
+			}
 			System.out.println("[MonsterBox] Spout detected. Spout support enabled.");
 		}
     }
@@ -237,6 +237,10 @@ public class MonsterBox extends JavaPlugin {
 		        String stool = themapSettings.getProperty("changetool", String.valueOf(Material.GOLD_SWORD.getId()));
 		        //If the version isn't set, the file must be at 0.2
 		        String theversion = themapSettings.getProperty("version", "0.1");
+		        eggthrowmessage = themapSettings.getProperty("eggdenymessage", eggthrowmessage);
+		        String silktouch = themapSettings.getProperty("needssilktouch", "false");
+		        
+		        needssilktouch = stringToBool(silktouch);
 			    
 			    useiconomy = stringToBool(iconomy);
 			    separateprices = stringToBool(sprices);
@@ -262,7 +266,7 @@ public class MonsterBox extends JavaPlugin {
 			    } catch (Exception ex) {
 			    	
 			    }
-			    if(dbversion < 0.4) {
+			    if(dbversion < 0.7) {
 			    	//If we are using the old config file let's convert that variable... otherwise we won't want to do that...
 			    	if(dbversion == 0.1) {
 				        String sconomy = themapSettings.getProperty("useiConomy", "false");
@@ -298,9 +302,14 @@ public class MonsterBox extends JavaPlugin {
 					"separateprices = " + separateprices + "\n" +
 					"# changetool is the tool that opens up the spout gui for changing the monster spawner.\n" +
 					"changetool = " + tool + "\n" +
+					"# needssilktouch Does the player need a silk touch enchanted tool to get a spawner?.\n" +
+					"needssilktouch = " + needssilktouch + "\n" +
 					"# buttonwidth changes the width of the buttons in the spoutcraft gui, just in case the\n" +
 					"# text doesn't fit for you.\n" +
 					"buttonwidth = " + buttonwidth + "\n\n" +
+					"# eggdenymessage sets the message displayed to players when they are denied egg spawning\n" +
+					"# if they have the monsterbox.eggthrowmessage permission node.\n" +
+					"eggdenymessage = " + eggthrowmessage + "\n\n" +
 					"#Do not change anything below this line unless you know what you are doing!\n" +
 					"version = " + version );
 			outChannel.close();
@@ -312,17 +321,9 @@ public class MonsterBox extends JavaPlugin {
 	
 	public boolean hasEconomy() {
 		if(iConomy != null) {
-			return Methods.hasMethod();
+			return iConomy.isEnabled();
 		}else {
 			return false;
-		}
-	}
-	
-	public Method getEconomy() {
-		if(iConomy != null) {
-			return Methods.getMethod();
-		}else {
-			return null;
 		}
 	}
 	
@@ -346,11 +347,21 @@ public class MonsterBox extends JavaPlugin {
 	    	}else {
 	    		type = this.capitalCase(type);
 	    	}
-	    	CreatureType ct = CreatureType.fromName(type);
+	    	EntityType ct = EntityType.fromName(type);
 	        if (ct == null) {
+	        	//It seems there's a typo with the ocelot and iron golem in the beta builds...
+	        	//If I don't do a quick hack I'm going to get all the noobs wondering why
+	        	//it doesn't work right...
+	        	if(type.equalsIgnoreCase("ocelot")) {
+	        		theSpawner.setSpawnedType(EntityType.OCELOT);
+	        		return true;
+	        	}else if(type.equalsIgnoreCase("IronGolem")) {
+	        		theSpawner.setSpawnedType(EntityType.IRON_GOLEM);
+	        		return true;
+	        	}
 	            return false;
 	        }
-	        theSpawner.setCreatureType(ct);
+	        theSpawner.setSpawnedType(ct);
 	        return true;
 		}catch (Exception e) {
 			return false;
@@ -371,11 +382,19 @@ public class MonsterBox extends JavaPlugin {
 	}
 	
 	private void setupMobCase() {
-		CreatureType[] mobs = CreatureType.values();
-		for(CreatureType mob : mobs) {
-			String mobname = mob.getName().trim();
+		CreatureTypes[] mobs = CreatureTypes.values();
+		for(CreatureTypes mob : mobs) {
+			String mobname = mob.toString().trim();
 			mobcase.put(mobname.toLowerCase(), mobname);
 		}
 	}
+	
+	private void setupEconomy()
+    {
+        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+        if (economyProvider != null) {
+            iConomy = economyProvider.getProvider();
+        }
+    }
 }
 

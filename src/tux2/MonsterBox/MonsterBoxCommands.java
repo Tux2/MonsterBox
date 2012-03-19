@@ -5,13 +5,10 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
 import org.bukkit.block.*;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.player.SpoutPlayer;
-
-import com.nijikokun.register.payment.Method.MethodAccount;
 
 public class MonsterBoxCommands implements CommandExecutor {
 	
@@ -39,21 +36,21 @@ public class MonsterBoxCommands implements CommandExecutor {
 										}else {
 											player.sendMessage(ChatColor.RED + "Invalid mob type.");
 										}
-									}else if(plugin.getEconomy().hasAccount(player.getName())) {
-										MethodAccount balance = plugin.getEconomy().getAccount(player.getName());
-										if(balance.hasEnough(plugin.getMobPrice(args[1]))) {
+									}else if(plugin.iConomy.hasAccount(player.getName())) {
+										double balance = plugin.iConomy.getBalance(player.getName());
+										if(balance >= plugin.getMobPrice(args[1])) {
 											if(plugin.setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
-												balance.subtract(plugin.getMobPrice(args[1]));
+												plugin.iConomy.withdrawPlayer(player.getName(), plugin.getMobPrice(args[1]));
 												player.sendMessage(ChatColor.DARK_GREEN + "Poof! That mob spawner is now a " + args[1].toLowerCase() + " spawner.");
 												return true;
 											}else {
 												player.sendMessage(ChatColor.RED + "Invalid mob type.");
 											}
 										}else {
-											player.sendMessage(ChatColor.RED + "You need " + plugin.getEconomy().format(plugin.getMobPrice(args[1])) + " to set the type of monster spawner!");
+											player.sendMessage(ChatColor.RED + "You need " + plugin.iConomy.format(plugin.getMobPrice(args[1])) + " to set the type of monster spawner!");
 										}
 								    } else {
-								    	player.sendMessage(ChatColor.RED + "You need a bank account and " + plugin.getEconomy().format(plugin.getMobPrice(args[1])) + " to set the type of monster spawner!");
+								    	player.sendMessage(ChatColor.RED + "You need a bank account and " + plugin.iConomy.format(plugin.getMobPrice(args[1])) + " to set the type of monster spawner!");
 								    }
 								}else {
 									if(plugin.setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), args[1])) {
@@ -78,21 +75,21 @@ public class MonsterBoxCommands implements CommandExecutor {
 						if(plugin.usespout != null) {
 							SpoutPlayer splayer = SpoutManager.getPlayer(player);
 							if(splayer.isSpoutCraftEnabled()) {
-								splayer.closeActiveWindow();
+								splayer.getMainScreen().closePopup();
 								CreatureSpawner theSpawner = (CreatureSpawner) player.getTargetBlock(plugin.transparentBlocks, 40).getState();
-								String monster = theSpawner.getCreatureTypeId().toLowerCase();
+								String monster = theSpawner.getCreatureTypeName().toLowerCase();
 								plugin.ss.createMonsterGUI("This is currently a " + monster + " spawner.", !plugin.hasPermissions(splayer, "monsterbox.free"), splayer);
 								return true;
 							}
 						}else {
 							player.sendMessage(ChatColor.GREEN + "To set the Spawner type: /mbox set <mobname>");
-							CreatureType[] values = CreatureType.values();
+							CreatureTypes[] values = CreatureTypes.values();
 							String mobs = "";
 							for(int i = 0; i < values.length; i++) {
 								if(i > 0) {
 									mobs = mobs + ", ";
 								}
-								mobs = mobs + values[i].getName();
+								mobs = mobs + values[i].toString();
 							}
 							player.sendMessage(ChatColor.GREEN + "Valid mob types: " + mobs);
 							return true;
@@ -104,7 +101,7 @@ public class MonsterBoxCommands implements CommandExecutor {
 							if(targetblock.getType() == Material.MOB_SPAWNER) {
 								try {
 									CreatureSpawner theSpawner = (CreatureSpawner) targetblock.getState();
-									String monster = theSpawner.getCreatureTypeId().toLowerCase();
+									String monster = theSpawner.getCreatureTypeName().toLowerCase();
 									player.sendMessage(ChatColor.GREEN + "That is a " + ChatColor.RED + monster + ChatColor.GREEN + " spawner.");
 							        return true;
 								}catch (Exception e) {
@@ -123,13 +120,13 @@ public class MonsterBoxCommands implements CommandExecutor {
 					}
 				} else {
 					player.sendMessage(ChatColor.GREEN + "To set the Spawner type: /mbox set <mobname>");
-					CreatureType[] values = CreatureType.values();
+					CreatureTypes[] values = CreatureTypes.values();
 					String mobs = "";
 					for(int i = 0; i < values.length; i++) {
 						if(i > 0) {
 							mobs = mobs + ", ";
 						}
-						mobs = mobs + values[i].getName();
+						mobs = mobs + values[i].toString();
 					}
 					player.sendMessage(ChatColor.GREEN + "Valid mob types: " + mobs);
 				}

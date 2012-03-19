@@ -2,14 +2,14 @@ package tux2.MonsterBox;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.getspout.spoutapi.event.screen.ButtonClickEvent;
-import org.getspout.spoutapi.event.screen.ScreenListener;
 import org.getspout.spoutapi.gui.Button;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
-import com.nijikokun.register.payment.Method.MethodAccount;
-
-public class MonsterBoxScreenListener extends ScreenListener {
+public class MonsterBoxScreenListener implements Listener {
 
 	MonsterBox plugin;
 
@@ -17,7 +17,7 @@ public class MonsterBoxScreenListener extends ScreenListener {
 		this.plugin = plugin;
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void onButtonClick(ButtonClickEvent event) {
 		// See if we are the owners of this button...
 		if (plugin == event.getButton().getPlugin()) {
@@ -27,7 +27,8 @@ public class MonsterBoxScreenListener extends ScreenListener {
 			String mobname = buttonsplit[buttonsplit.length - 1];
 			SpoutPlayer player = event.getPlayer();
 			if (mobname.equalsIgnoreCase("close")) {
-				player.closeActiveWindow();
+				player.getMainScreen().closePopup();
+				//player.closeActiveWindow();
 			} else {
 
 				if (plugin.hasPermissions(player, "monsterbox.set")) {
@@ -35,38 +36,37 @@ public class MonsterBoxScreenListener extends ScreenListener {
 							+ mobname.toLowerCase())) {
 						if (plugin.useiconomy && plugin.hasEconomy()) {
 							if (plugin.hasPermissions(player, "monsterbox.free")) {
-								if (plugin.setSpawner(player.getTargetBlock(
-										plugin.transparentBlocks, 40), mobname)) {
+								if (plugin.setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), mobname)) {
 									player.sendNotification("Mob Spawner changed!", plugin.capitalCase(mobname) + "s galore!", Material.MOB_SPAWNER);
-									player.closeActiveWindow();
+									player.getMainScreen().closePopup();
+									//player.closeActiveWindow();
 								} else {
 									player.sendNotification("Mob Unavailable", "Invalid mob type.", Material.FIRE);
 								}
-							} else if (plugin.getEconomy().hasAccount(
-									player.getName())) {
-								MethodAccount balance = plugin.getEconomy()
-										.getAccount(player.getName());
-								if (balance.hasEnough(plugin.getMobPrice(mobname))) {
+							} else if (plugin.iConomy.hasAccount(player.getName())) {
+								double balance = plugin.iConomy.getBalance(player.getName());
+								if (balance >= plugin.getMobPrice(mobname)) {
 									if (plugin.setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), mobname)) {
-										balance.subtract(plugin.getMobPrice(mobname));
-										player.sendNotification("Mob Spawner changed!", plugin.capitalCase(mobname) + "s galore!",
-												Material.MOB_SPAWNER);
-										player.closeActiveWindow();
+										plugin.iConomy.withdrawPlayer(player.getName(), plugin.getMobPrice(mobname));
+										player.sendNotification("Mob Spawner changed!", plugin.capitalCase(mobname) + "s galore!", Material.MOB_SPAWNER);
+										player.getMainScreen().closePopup();
+										//player.closeActiveWindow();
 									} else {
 										player.sendNotification("Mob Unavailable", "Invalid mob type.", Material.FIRE);
 									}
 								} else {
-									player.sendNotification("Insufficient Funds!", "You need " + plugin.getEconomy().format(plugin.getMobPrice(mobname)) + "!", Material.MOB_SPAWNER);
+									player.sendNotification("Insufficient Funds!", "You need " + plugin.iConomy.format(plugin.getMobPrice(mobname)) + "!", Material.MOB_SPAWNER);
 								}
 							} else {
 								player.sendNotification("No Bank account!", 
-										"You need a bank account and " + plugin.getEconomy().format(plugin.getMobPrice(mobname)) + "!", Material.MOB_SPAWNER);
+										"You need a bank account and " + plugin.iConomy.format(plugin.getMobPrice(mobname)) + "!", Material.MOB_SPAWNER);
 							}
 						} else {
 							if (plugin.setSpawner(player.getTargetBlock(
 									plugin.transparentBlocks, 40), mobname)) {
 								player.sendNotification("Mob Spawner changed!", plugin.capitalCase(mobname) + "s galore!", Material.MOB_SPAWNER);
-								player.closeActiveWindow();
+								player.getMainScreen().closePopup();
+								//player.closeActiveWindow();
 							} else {
 								player.sendNotification("Mob Unavailable", "Invalid mob type.", Material.FIRE);
 							}
@@ -76,7 +76,8 @@ public class MonsterBoxScreenListener extends ScreenListener {
 					}
 				} else {
 					player.sendMessage(ChatColor.RED + "You don't have permission to change spawner types!");
-					player.closeActiveWindow();
+					player.getMainScreen().closePopup();
+					//player.closeActiveWindow();
 				}
 			}
 		}

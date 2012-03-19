@@ -1,12 +1,12 @@
 name: MonsterBox
 main: tux2.MonsterBox.MonsterBox
-version: 0.6
+version: 0.7
 commands:
    mbox:
       description: Sets the monster spawner you are looking at to the specified mob type.
       usage: |
        /mbox set <mob name>
-softdepend: [Spout]
+softdepend: [Spout,Vault]
 
 # SuperPerms data
 permissions:
@@ -23,6 +23,7 @@ permissions:
             monsterbox.view: true
             monsterbox.spawn.*: true
             monsterbox.eggspawn.*: true
+            monsterbox.eggthrow.*: true
     monsterbox.spawn.*:
         default: op
         description: Gives access to change a mob spawner to any type
@@ -51,6 +52,8 @@ permissions:
             monsterbox.spawn.mushroomcow: true
             monsterbox.spawn.magmacube: true
             monsterbox.spawn.snowman: true
+            monsterbox.spawn.irongolem: true
+            monsterbox.spawn.ocelot: true
     monsterbox.dropegg.*:
         default: op
         description: Gives access to change a mob spawner to any type
@@ -79,6 +82,8 @@ permissions:
             monsterbox.dropegg.mushroomcow: true
             monsterbox.dropegg.magmacube: true
             monsterbox.dropegg.snowman: true
+            monsterbox.dropegg.irongolem: true
+            monsterbox.dropegg.ocelot: true
     monsterbox.eggspawn.*:
         default: op
         description: Gives access to change a mob spawner to any type using eggs
@@ -107,6 +112,38 @@ permissions:
             monsterbox.eggspawn.mushroomcow: true
             monsterbox.eggspawn.magmacube: true
             monsterbox.eggspawn.snowman: true
+            monsterbox.eggspawn.irongolem: true
+            monsterbox.eggspawn.ocelot: true
+    monsterbox.eggthrow.*:
+        default: op
+        description: Gives access to change a mob spawner to any type using eggs
+        children:
+            monsterbox.eggthrow.pig: true
+            monsterbox.eggthrow.chicken: true
+            monsterbox.eggthrow.cow: true
+            monsterbox.eggthrow.sheep: true
+            monsterbox.eggthrow.squid: true
+            monsterbox.eggthrow.creeper: true
+            monsterbox.eggthrow.ghast: true
+            monsterbox.eggthrow.pigzombie: true
+            monsterbox.eggthrow.skeleton: true
+            monsterbox.eggthrow.spider: true
+            monsterbox.eggthrow.zombie: true
+            monsterbox.eggthrow.slime: true
+            monsterbox.eggthrow.monster: true
+            monsterbox.eggthrow.giant: true
+            monsterbox.eggthrow.wolf: true
+            monsterbox.eggthrow.cavespider: true
+            monsterbox.eggthrow.enderman: true
+            monsterbox.eggthrow.silverfish: true
+            monsterbox.eggthrow.enderdragon: true
+            monsterbox.eggthrow.villager: true
+            monsterbox.eggthrow.blaze: true
+            monsterbox.eggthrow.mushroomcow: true
+            monsterbox.eggthrow.magmacube: true
+            monsterbox.eggthrow.snowman: true
+            monsterbox.eggthrow.irongolem: true
+            monsterbox.eggthrow.ocelot: true
     monsterbox.set:
         description: Allows you to set a monster spawner type.
         default: op

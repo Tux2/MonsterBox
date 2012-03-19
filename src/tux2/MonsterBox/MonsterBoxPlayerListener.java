@@ -1,7 +1,7 @@
 package tux2.MonsterBox;
 
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.entity.CreatureType;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -32,9 +32,9 @@ public class MonsterBoxPlayerListener implements Listener {
 					if(plugin.bl.intmobs.containsKey(new Integer(is.getDurability()))) {
 						String type = plugin.bl.intmobs.get(new Integer(is.getDurability()));
 						CreatureSpawner theSpawner = (CreatureSpawner) event.getClickedBlock().getState();
-				    	CreatureType ct = CreatureType.fromName(type);
+				    	EntityType ct = EntityType.fromName(type);
 				        if (ct != null && plugin.hasPermissions(player, "monsterbox.eggspawn." + type.toLowerCase())) {
-				        	theSpawner.setCreatureType(ct);
+				        	theSpawner.setSpawnedType(ct);
 							player.sendMessage(ChatColor.DARK_GREEN + "KERPOW! That is now a " + ChatColor.RED + type.toLowerCase() + ChatColor.DARK_GREEN + " spawner.");
 				        	//Now that we set the spawner type let's remove the egg, but only if the player is in survival mode...
 				        	if(player.getGameMode() == GameMode.SURVIVAL) {
@@ -43,12 +43,20 @@ public class MonsterBoxPlayerListener implements Listener {
 				        }
 					}
 				}
+			}else if(is.getTypeId() == 383 && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				String type = plugin.bl.intmobs.get(new Integer(is.getDurability()));
+				if(type != null && !plugin.hasPermissions(player, "monsterbox.eggthrow." + type.toLowerCase())) {
+					if(plugin.hasPermissions(player, "monsterbox.eggthrowmessage")) {
+						player.sendMessage(plugin.eggthrowmessage);
+					}
+					event.setCancelled(true);
+				}else if(type == null && !plugin.hasPermissions(player, "monsterbox.eggthrow.other"));
 			}else if(plugin.usespout != null && is.getType().getId() == plugin.tool && event.getClickedBlock() != null && event.getClickedBlock().getTypeId() == 52) {
 				SpoutPlayer splayer = SpoutManager.getPlayer(player);
 				if(splayer.isSpoutCraftEnabled() && plugin.hasPermissions(player, "monsterbox.set")) {
 					CreatureSpawner theSpawner = (CreatureSpawner) event.getClickedBlock().getState();
-					String monster = theSpawner.getCreatureTypeId().toLowerCase();
-					splayer.closeActiveWindow();
+					String monster = theSpawner.getCreatureTypeName().toLowerCase();
+					splayer.getMainScreen().closePopup();
 					plugin.ss.createMonsterGUI("This is currently a " + monster + " spawner.", !plugin.hasPermissions(splayer, "monsterbox.free"), splayer);
 				}
 			}
