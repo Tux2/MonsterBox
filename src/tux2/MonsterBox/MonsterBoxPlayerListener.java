@@ -1,5 +1,6 @@
 package tux2.MonsterBox;
 
+import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -31,10 +32,10 @@ public class MonsterBoxPlayerListener implements Listener {
 				if(plugin.hasPermissions(player, "monsterbox.eggset")) {
 					if(plugin.bl.intmobs.containsKey(new Integer(is.getDurability()))) {
 						String type = plugin.bl.intmobs.get(new Integer(is.getDurability()));
-						CreatureSpawner theSpawner = (CreatureSpawner) event.getClickedBlock().getState();
+						Block theSpawner = event.getClickedBlock();
 				    	EntityType ct = EntityType.fromName(type);
 				        if (ct != null && plugin.hasPermissions(player, "monsterbox.eggspawn." + type.toLowerCase())) {
-				        	theSpawner.setSpawnedType(ct);
+				        	plugin.setSpawner(theSpawner, type);
 							player.sendMessage(ChatColor.DARK_GREEN + "KERPOW! That is now a " + ChatColor.RED + type.toLowerCase() + ChatColor.DARK_GREEN + " spawner.");
 				        	//Now that we set the spawner type let's remove the egg, but only if the player is in survival mode...
 				        	if(player.getGameMode() == GameMode.SURVIVAL) {
