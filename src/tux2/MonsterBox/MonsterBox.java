@@ -166,7 +166,7 @@ public class MonsterBox extends JavaPlugin {
 			folder.mkdir();
 
 			System.out.println("[MonsterBox] - creating file eggprices.ini");
-			createprices();
+			createeggprices();
 		}
 		
 	}
@@ -521,10 +521,10 @@ public class MonsterBox extends JavaPlugin {
 		int startz = spawner.getBlockZ() - 4;
 		int endz = startz + 8;
 		disabledspawnerlocs.put(locationBuilder(spawner), new Integer(mobname.getTypeId()));
-		for(; startx < endx; startx++) {
-			for(; starty < endy; starty++) {
-				for(; startz < endz; startz++) {
-					String location = startx + "." + starty + "." + startz + "." + spawner.getWorld().getName();
+		for(int x = startx; x < endx; x++) {
+			for(int y = starty; y < endy; y++) {
+				for(int z = startz; z < endz; z++) {
+					String location = x + "." + y + "." + z + "." + spawner.getWorld().getName();
 					if(disabledspawners.containsKey(location)) {
 						disabledspawners.get(location).add(mobname);
 					}else {
@@ -554,10 +554,10 @@ public class MonsterBox extends JavaPlugin {
 		int startz = spawner.getBlockZ() - 4;
 		int endz = startz + 8;
 		disabledspawnerlocs.remove(locationBuilder(spawner));
-		for(; startx < endx; startx++) {
-			for(; starty < endy; starty++) {
-				for(; startz < endz; startz++) {
-					String location = startx + "." + starty + "." + startz + "." + spawner.getWorld().getName();
+		for(int x = startx; x < endx; x++) {
+			for(int y = starty; y < endy; y++) {
+				for(int z = startz; z < endz; z++) {
+					String location = x + "." + y + "." + z + "." + spawner.getWorld().getName();
 					if(disabledspawners.containsKey(location)) {
 						disabledspawners.get(location).remove(mobname);
 					}
@@ -587,7 +587,7 @@ public class MonsterBox extends JavaPlugin {
 				try {
 					int mobtype = disabledspawnerlocs.get(key).intValue();
 					EntityType type = EntityType.fromId(mobtype);
-					String[] location = key.split(".");
+					String[] location = key.split("\\.");
 					String destworld = location[3];
 					int x = Integer.parseInt(location[0]);
 					int y = Integer.parseInt(location[1]);
@@ -598,12 +598,12 @@ public class MonsterBox extends JavaPlugin {
 					int endy = starty + 8;
 					int startz = z - 4;
 					int endz = startz + 8;
-					for(; startx < endx; startx++) {
-						for(; starty < endy; starty++) {
-							for(; startz < endz; startz++) {
-								String slocation = startx + "." + starty + "." + startz + "." + destworld;
-								if(disabledspawners.containsKey(location)) {
-									disabledspawners.get(location).add(type);
+					for(int x1 = startx; x1 < endx; x1++) {
+						for(int y1 = starty; y1 < endy; y1++) {
+							for(int z1 = startz; z1 < endz; z1++) {
+								String slocation = x1 + "." + y1 + "." + z1 + "." + destworld;
+								if(disabledspawners.containsKey(slocation)) {
+									disabledspawners.get(slocation).add(type);
 								}else {
 									LinkedList<EntityType> tlist = new LinkedList<EntityType>();
 									tlist.add(type);
@@ -613,11 +613,12 @@ public class MonsterBox extends JavaPlugin {
 						}
 					}
 				}catch (Exception ex) {
-					
+					ex.printStackTrace();
 				}
 			}
 		}catch (Exception e) {
 			// If it doesn't work, no great loss!
+			e.printStackTrace();
 		}
 	}
 }

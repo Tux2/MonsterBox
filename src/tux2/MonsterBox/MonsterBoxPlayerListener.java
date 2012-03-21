@@ -45,7 +45,11 @@ public class MonsterBoxPlayerListener implements Listener {
 							player.sendMessage(ChatColor.DARK_GREEN + "KERPOW! That is now a " + ChatColor.RED + type.toLowerCase() + ChatColor.DARK_GREEN + " spawner.");
 				        	//Now that we set the spawner type let's remove the egg, but only if the player is in survival mode...
 				        	if(player.getGameMode() == GameMode.SURVIVAL) {
-					        	is.setAmount(is.getAmount() - 1);
+				        		if(is.getAmount() == 1) {
+				        			player.setItemInHand(new ItemStack(0));
+				        		}else {
+						        	is.setAmount(is.getAmount() - 1);
+				        		}
 				        	}
 				        	if(plugin.useiconomy && plugin.getEggMobPrice(type) > 0) {
 								if(!player.hasPermission("monsterbox.freeegg")) {

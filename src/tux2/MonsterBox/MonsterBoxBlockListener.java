@@ -48,16 +48,20 @@ public class MonsterBoxBlockListener implements Listener {
 			}
 			try {
 				CreatureSpawner theSpawner = (CreatureSpawner) event.getBlock().getState();
-				String monster = theSpawner.getCreatureTypeName();
+				String monster = intmobs.get(new Integer(theSpawner.getSpawnedType().getTypeId()));
 				if(plugin.hasPermissions(event.getPlayer(), "monsterbox.drops") || plugin.hasPermissions(event.getPlayer(), "monsterbox.dropegg")) {
-					event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "You just broke a " + ChatColor.RED + monster.toLowerCase() + ChatColor.DARK_GREEN + " spawner.");
+					if(nodrops) {
+						event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "You just broke an " + ChatColor.RED + "unset" + ChatColor.DARK_GREEN + " spawner.");
+					}else {
+						event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "You just broke a " + ChatColor.RED + monster.toLowerCase() + ChatColor.DARK_GREEN + " spawner.");
+					}
 				}
 				if(plugin.hasPermissions(event.getPlayer(), "monsterbox.drops")) {
 					ItemStack mobstack = new ItemStack(Material.MOB_SPAWNER, 1);
 					event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), mobstack);
 				}
 				if(!nodrops && stringmobs.containsKey(monster) && plugin.hasPermissions(event.getPlayer(), "monsterbox.dropegg." + monster.toLowerCase())) {
-					ItemStack eggstack = new ItemStack(383, 1, stringmobs.get(monster).shortValue());
+					ItemStack eggstack = new ItemStack(383, 1, theSpawner.getSpawnedType().getTypeId());
 					event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), eggstack);
 				}
 			}catch (Exception e) {
