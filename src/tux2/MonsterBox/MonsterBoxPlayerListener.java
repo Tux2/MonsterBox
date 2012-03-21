@@ -52,12 +52,10 @@ public class MonsterBoxPlayerListener implements Listener {
 				        		}
 				        	}
 				        	if(plugin.useiconomy && plugin.getEggMobPrice(type) > 0) {
-								if(!player.hasPermission("monsterbox.freeegg")) {
-									if(plugin.iConomy.getBalance(player.getName()) < plugin.getEggMobPrice(type)) {
-										plugin.iConomy.withdrawPlayer(player.getName(), plugin.getEggMobPrice(type));
-										player.sendMessage(ChatColor.DARK_GREEN + "You just spent " + plugin.iConomy.format(plugin.getEggMobPrice(type)) + " setting that spawner.");
-									}
-								}
+				        		if(!player.hasPermission("monsterbox.freeegg")) {
+				        			plugin.iConomy.withdrawPlayer(player.getName(), plugin.getEggMobPrice(type));
+				        			player.sendMessage(ChatColor.DARK_GREEN + "You just spent " + plugin.iConomy.format(plugin.getEggMobPrice(type)) + " setting that spawner.");
+				        		}
 							}
 			        	}else {
 			        		player.sendMessage(ChatColor.DARK_RED + "Oops, something went wrong while setting the spawner to a " + type.toLowerCase() + ".");
