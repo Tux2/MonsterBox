@@ -2,6 +2,7 @@ package tux2.MonsterBox;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -34,9 +35,10 @@ public class MonsterBoxScreenListener implements Listener {
 				if (plugin.hasPermissions(player, "monsterbox.set")) {
 					if (plugin.hasPermissions(player, "monsterbox.spawn."
 							+ mobname.toLowerCase())) {
+						Block targetblock = player.getTargetBlock(plugin.transparentBlocks, 40);
 						if (plugin.useiconomy && plugin.hasEconomy()) {
 							if (plugin.hasPermissions(player, "monsterbox.free")) {
-								if (plugin.setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), mobname)) {
+								if (plugin.setSpawner(targetblock, mobname)) {
 									player.sendNotification("Mob Spawner changed!", plugin.capitalCase(mobname) + "s galore!", Material.MOB_SPAWNER);
 									player.getMainScreen().closePopup();
 									//player.closeActiveWindow();
@@ -46,7 +48,7 @@ public class MonsterBoxScreenListener implements Listener {
 							} else if (plugin.iConomy.hasAccount(player.getName())) {
 								double balance = plugin.iConomy.getBalance(player.getName());
 								if (balance >= plugin.getMobPrice(mobname)) {
-									if (plugin.setSpawner(player.getTargetBlock(plugin.transparentBlocks, 40), mobname)) {
+									if (plugin.setSpawner(targetblock, mobname)) {
 										plugin.iConomy.withdrawPlayer(player.getName(), plugin.getMobPrice(mobname));
 										player.sendNotification("Mob Spawner changed!", plugin.capitalCase(mobname) + "s galore!", Material.MOB_SPAWNER);
 										player.getMainScreen().closePopup();
@@ -62,8 +64,7 @@ public class MonsterBoxScreenListener implements Listener {
 										"You need a bank account and " + plugin.iConomy.format(plugin.getMobPrice(mobname)) + "!", Material.MOB_SPAWNER);
 							}
 						} else {
-							if (plugin.setSpawner(player.getTargetBlock(
-									plugin.transparentBlocks, 40), mobname)) {
+							if (plugin.setSpawner(targetblock, mobname)) {
 								player.sendNotification("Mob Spawner changed!", plugin.capitalCase(mobname) + "s galore!", Material.MOB_SPAWNER);
 								player.getMainScreen().closePopup();
 								//player.closeActiveWindow();

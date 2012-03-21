@@ -3,17 +3,23 @@ package tux2.MonsterBox;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.milkbowl.vault.economy.Economy;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
@@ -40,6 +46,9 @@ public class MonsterBox extends JavaPlugin {
     //private final MonsterBoxBlockListener blockListener = new MonsterBoxBlockListener(this);
     private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
     private final ConcurrentHashMap<String, Double> mobprice = new ConcurrentHashMap<String, Double>();
+    private final ConcurrentHashMap<String, Double> mobeggprice = new ConcurrentHashMap<String, Double>();
+    private final ConcurrentHashMap<String, LinkedList<EntityType>> disabledspawners = new ConcurrentHashMap<String, LinkedList<EntityType>>();
+    ConcurrentHashMap<String, Integer> disabledspawnerlocs = new ConcurrentHashMap<String, Integer>();
     private static PermissionHandler Permissions;
     public MonsterBoxBlockListener bl;
     public Economy iConomy = null;
@@ -49,16 +58,21 @@ public class MonsterBox extends JavaPlugin {
 	public boolean separateprices = false;
 	public int tool = Material.GOLD_SWORD.getId();
 	public int buttonwidth = 80;
-	public String version = "0.7";
+	public String version = "0.8";
 	public SpoutStuff ss = null;
     public HashSet<Byte> transparentBlocks = new HashSet<Byte>();
     private ConcurrentHashMap<String, String> mobcase = new ConcurrentHashMap<String, String>();
 	public String eggthrowmessage = "I'm sorry, but you can't spawn that mob.";
 	public boolean needssilktouch = false;
+	public double eggprice = 0.0;
+	public boolean separateeggprices = false;
+	public String blocksavefile = "plugins/MonsterBox/disabledspawners.list";
     public MonsterBox() {
         super();
         loadconfig();
         loadprices();
+        loadeggprices();
+        loadDisabledSpawners();
         
       //Setting transparent blocks.
         transparentBlocks.add((byte) 0); // Air
@@ -76,9 +90,7 @@ public class MonsterBox extends JavaPlugin {
 
         // NOTE: Event registration should be done in onEnable not here as all events are unregistered when a plugin is disabled
     }
-
-   
-
+    
     private void loadprices() {
 
 		File folder = new File("plugins/MonsterBox");
@@ -118,9 +130,47 @@ public class MonsterBox extends JavaPlugin {
 		}
 		
 	}
+    
+    private void loadeggprices() {
 
+		File folder = new File("plugins/MonsterBox");
 
+		// check for existing file
+		File configFile = new File("plugins/MonsterBox/eggprices.ini");
+		
+		//if it exists, let's read it, if it doesn't, let's create it.
+		if (configFile.exists()) {
+			try {
+				mobprice.clear();
+				Properties theprices = new Properties();
+				theprices.load(new FileInputStream(configFile));
+				Iterator<Entry<Object, Object>> iprices = theprices.entrySet().iterator();
+				while(iprices.hasNext()) {
+					Entry<Object, Object> price = iprices.next();
+					try {
+						mobeggprice.put(price.getKey().toString().toLowerCase(), new Double(price.getValue().toString()));
+					}catch (NumberFormatException ex) {
+						System.out.println("[MonsterBox] Unable to parse the value for " + price.getKey().toString() + "in the eggprices.ini file.");
+					}
+				}
+			} catch (IOException e) {
+				
+			}
+			//A quick and dirty way to see if there are any new mobs we need to add to the list
+			if(mobprice.size() < CreatureTypes.values().length) {
+				System.out.println("[MonsterBox] - New mobs found! Updating eggprices.ini");
+				createeggprices();
+			}
+		}else {
+			System.out.println("[MonsterBox] Egg price file not found");
+			folder.mkdir();
 
+			System.out.println("[MonsterBox] - creating file eggprices.ini");
+			createprices();
+		}
+		
+	}
+    
 	private void createprices() {
 		try {
 			BufferedWriter outChannel = new BufferedWriter(new FileWriter("plugins/MonsterBox/prices.ini"));
@@ -134,13 +184,29 @@ public class MonsterBox extends JavaPlugin {
 			}
 			outChannel.close();
 		} catch (Exception e) {
-			System.out.println("[MonsterBox] - file creation failed, using defaults.");
+			System.out.println("[MonsterBox] - Prices file creation failed, using defaults.");
 		}
 		
 	}
-
-
-
+    
+	private void createeggprices() {
+		try {
+			BufferedWriter outChannel = new BufferedWriter(new FileWriter("plugins/MonsterBox/eggprices.ini"));
+			outChannel.write("#This config file contains all the separate prices for all the mobs\n" +
+					"# for eggs if the option separateeggprices is true\n" +
+					"\n" +
+					"\n");
+			CreatureTypes[] mobs = CreatureTypes.values();
+			for(CreatureTypes mob : mobs) {
+				outChannel.write(mob.toString() + " = " + String.valueOf(getEggMobPrice(mob.toString())) + "\n");
+			}
+			outChannel.close();
+		} catch (Exception e) {
+			System.out.println("[MonsterBox] - Egg prices file creation failed, using defaults.");
+		}
+		
+	}
+	
 	public void onEnable() {
     	setupPermissions();
     	setupSpout();
@@ -232,7 +298,9 @@ public class MonsterBox extends JavaPlugin {
 		        
 		        String iconomy = themapSettings.getProperty("useEconomy", "false");
 		        String price = themapSettings.getProperty("price", "0.0");
+		        String eggsprice = themapSettings.getProperty("eggprice", "0.0");
 		        String sprices = themapSettings.getProperty("separateprices", "false");
+		        String seggprices = themapSettings.getProperty("separateeggprices", "false");
 		        String swidth = themapSettings.getProperty("buttonwidth", "100");
 		        String stool = themapSettings.getProperty("changetool", String.valueOf(Material.GOLD_SWORD.getId()));
 		        //If the version isn't set, the file must be at 0.2
@@ -244,6 +312,7 @@ public class MonsterBox extends JavaPlugin {
 			    
 			    useiconomy = stringToBool(iconomy);
 			    separateprices = stringToBool(sprices);
+			    separateeggprices = stringToBool(seggprices);
 			    try {
 			    	tool = Integer.parseInt(stool.trim());
 			    } catch (Exception ex) {
@@ -259,6 +328,11 @@ public class MonsterBox extends JavaPlugin {
 			    } catch (Exception ex) {
 			    	
 			    }
+			    try {
+			    	eggprice = Double.parseDouble(eggsprice.trim());
+			    } catch (Exception ex) {
+			    	
+			    }
 			    //Let's see if we need to upgrade the config file
 			    double dbversion = 0.1;
 			    try {
@@ -266,7 +340,7 @@ public class MonsterBox extends JavaPlugin {
 			    } catch (Exception ex) {
 			    	
 			    }
-			    if(dbversion < 0.7) {
+			    if(dbversion < 0.8) {
 			    	//If we are using the old config file let's convert that variable... otherwise we won't want to do that...
 			    	if(dbversion == 0.1) {
 				        String sconomy = themapSettings.getProperty("useiConomy", "false");
@@ -297,9 +371,14 @@ public class MonsterBox extends JavaPlugin {
 					"useEconomy = " + useiconomy + "\n" +
 					"# price: The price to change monster spawner type\n" +
 					"price = " + iconomyprice + "\n\n" +
+					"# eggprice: The price to change monster spawner type using eggs\n" +
+					"eggprice = " + eggprice + "\n\n" +
 					"# separateprices: If you want separate prices for all the different types of mobs\n" +
 					"# set this to true.\n" +
 					"separateprices = " + separateprices + "\n" +
+					"# separateeggprices: If you want separate prices for all the different types of mobs\n" +
+					"# set this to true.\n" +
+					"separateeggprices = " + separateeggprices + "\n" +
 					"# changetool is the tool that opens up the spout gui for changing the monster spawner.\n" +
 					"changetool = " + tool + "\n" +
 					"# needssilktouch Does the player need a silk touch enchanted tool to get a spawner?.\n" +
@@ -354,14 +433,23 @@ public class MonsterBox extends JavaPlugin {
 	        	//it doesn't work right...
 	        	if(type.equalsIgnoreCase("ocelot")) {
 	        		theSpawner.setSpawnedType(EntityType.OCELOT);
+					if(disabledspawnerlocs.containsKey(locationBuilder(targetBlock.getLocation()))) {
+	    				removeDisabledSpawner(targetBlock);
+	    			}
 	        		return true;
 	        	}else if(type.equalsIgnoreCase("IronGolem")) {
 	        		theSpawner.setSpawnedType(EntityType.IRON_GOLEM);
+					if(disabledspawnerlocs.containsKey(locationBuilder(targetBlock.getLocation()))) {
+	    				removeDisabledSpawner(targetBlock);
+	    			}
 	        		return true;
 	        	}
 	            return false;
 	        }
 	        theSpawner.setSpawnedType(ct);
+	        if(disabledspawnerlocs.containsKey(locationBuilder(targetBlock.getLocation()))) {
+				removeDisabledSpawner(targetBlock);
+			}
 	        return true;
 		}catch (Exception e) {
 			return false;
@@ -381,6 +469,14 @@ public class MonsterBox extends JavaPlugin {
 		}
 	}
 	
+	public double getEggMobPrice(String name) {
+		if(separateeggprices && mobeggprice.containsKey(name.toLowerCase())) {
+			return mobeggprice.get(name.toLowerCase()).doubleValue();
+		}else {
+			return eggprice;
+		}
+	}
+	
 	private void setupMobCase() {
 		CreatureTypes[] mobs = CreatureTypes.values();
 		for(CreatureTypes mob : mobs) {
@@ -396,5 +492,133 @@ public class MonsterBox extends JavaPlugin {
             iConomy = economyProvider.getProvider();
         }
     }
+	
+	public boolean canSpawnMob(Location loc, EntityType type) {
+		String locname = locationBuilder(loc);
+		if(disabledspawners.containsKey(locname)) {
+			return !disabledspawners.get(locname).contains(type);
+		}
+		return true;
+	}
+	
+	public String locationBuilder(Location loc) {
+		return loc.getBlockX() + "." + loc.getBlockY() + "." + loc.getBlockZ() + "." + loc.getWorld().getName();
+	}
+	
+	public void addDisabledSpawner(Block spawner) {
+		if(spawner.getType() == Material.MOB_SPAWNER) {
+			CreatureSpawner theSpawner = (CreatureSpawner) spawner.getState();
+			EntityType mobname = theSpawner.getSpawnedType();
+			addDisabledSpawner(spawner.getLocation(), mobname);
+		}
+	}
+	
+	public void addDisabledSpawner(Location spawner, EntityType mobname) {
+		int startx = spawner.getBlockX() - 4;
+		int endx = startx + 8;
+		int starty = spawner.getBlockY() - 1;
+		int endy = starty + 8;
+		int startz = spawner.getBlockZ() - 4;
+		int endz = startz + 8;
+		disabledspawnerlocs.put(locationBuilder(spawner), new Integer(mobname.getTypeId()));
+		for(; startx < endx; startx++) {
+			for(; starty < endy; starty++) {
+				for(; startz < endz; startz++) {
+					String location = startx + "." + starty + "." + startz + "." + spawner.getWorld().getName();
+					if(disabledspawners.containsKey(location)) {
+						disabledspawners.get(location).add(mobname);
+					}else {
+						LinkedList<EntityType> tlist = new LinkedList<EntityType>();
+						tlist.add(mobname);
+						disabledspawners.put(location, tlist);
+					}
+				}
+			}
+		}
+		saveDisabledSpawners();
+	}
+	
+	public void removeDisabledSpawner(Block spawner) {
+		if(spawner.getType() == Material.MOB_SPAWNER) {
+			CreatureSpawner theSpawner = (CreatureSpawner) spawner.getState();
+			EntityType mobname = theSpawner.getSpawnedType();
+			removeDisabledSpawner(spawner.getLocation(), mobname);
+		}
+	}
+	
+	public void removeDisabledSpawner(Location spawner, EntityType mobname) {
+		int startx = spawner.getBlockX() - 4;
+		int endx = startx + 8;
+		int starty = spawner.getBlockY() - 1;
+		int endy = starty + 8;
+		int startz = spawner.getBlockZ() - 4;
+		int endz = startz + 8;
+		disabledspawnerlocs.remove(locationBuilder(spawner));
+		for(; startx < endx; startx++) {
+			for(; starty < endy; starty++) {
+				for(; startz < endz; startz++) {
+					String location = startx + "." + starty + "." + startz + "." + spawner.getWorld().getName();
+					if(disabledspawners.containsKey(location)) {
+						disabledspawners.get(location).remove(mobname);
+					}
+				}
+			}
+		}
+		saveDisabledSpawners();
+	}
+	
+	public void saveDisabledSpawners() {
+		try {
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(blocksavefile)));
+			out.writeObject(disabledspawnerlocs);
+			out.flush();
+			out.close();
+		}catch (Exception e) {
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void loadDisabledSpawners() {
+		try {
+			ObjectInputStream out = new ObjectInputStream(new FileInputStream(new File(blocksavefile)));
+			disabledspawnerlocs = (ConcurrentHashMap<String, Integer>) out.readObject();
+			Set<String> keys = disabledspawnerlocs.keySet();
+			for(String key : keys) {
+				try {
+					int mobtype = disabledspawnerlocs.get(key).intValue();
+					EntityType type = EntityType.fromId(mobtype);
+					String[] location = key.split(".");
+					String destworld = location[3];
+					int x = Integer.parseInt(location[0]);
+					int y = Integer.parseInt(location[1]);
+					int z = Integer.parseInt(location[2]);
+					int startx = x - 4;
+					int endx = startx + 8;
+					int starty = y - 1;
+					int endy = starty + 8;
+					int startz = z - 4;
+					int endz = startz + 8;
+					for(; startx < endx; startx++) {
+						for(; starty < endy; starty++) {
+							for(; startz < endz; startz++) {
+								String slocation = startx + "." + starty + "." + startz + "." + destworld;
+								if(disabledspawners.containsKey(location)) {
+									disabledspawners.get(location).add(type);
+								}else {
+									LinkedList<EntityType> tlist = new LinkedList<EntityType>();
+									tlist.add(type);
+									disabledspawners.put(slocation, tlist);
+								}
+							}
+						}
+					}
+				}catch (Exception ex) {
+					
+				}
+			}
+		}catch (Exception e) {
+			// If it doesn't work, no great loss!
+		}
+	}
 }
 

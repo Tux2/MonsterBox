@@ -1,6 +1,6 @@
 name: MonsterBox
 main: tux2.MonsterBox.MonsterBox
-version: 0.7.1
+version: 0.7.2
 commands:
    mbox:
       description: Sets the monster spawner you are looking at to the specified mob type.
@@ -19,6 +19,7 @@ permissions:
             monsterbox.drops: true
             monsterbox.dropegg.*: true
             monsterbox.free: true
+            monsterbox.freeegg: true
             monsterbox.place: true
             monsterbox.view: true
             monsterbox.spawn.*: true
@@ -163,6 +164,9 @@ permissions:
         default: op
     monsterbox.free:
         description: if an economy is enabled this node lets this group/user use the /mbox set command for free
+        default: op
+    monsterbox.freeegg:
+        description: if an economy is enabled this node lets this group/user set spawners using eggs for free
         default: op
     monsterbox.place:
         description: Allows you to place any spawner block
