@@ -141,7 +141,7 @@ public class MonsterBox extends JavaPlugin {
 		//if it exists, let's read it, if it doesn't, let's create it.
 		if (configFile.exists()) {
 			try {
-				mobprice.clear();
+				mobeggprice.clear();
 				Properties theprices = new Properties();
 				theprices.load(new FileInputStream(configFile));
 				Iterator<Entry<Object, Object>> iprices = theprices.entrySet().iterator();
@@ -157,7 +157,7 @@ public class MonsterBox extends JavaPlugin {
 				
 			}
 			//A quick and dirty way to see if there are any new mobs we need to add to the list
-			if(mobprice.size() < CreatureTypes.values().length) {
+			if(mobeggprice.size() < CreatureTypes.values().length) {
 				System.out.println("[MonsterBox] - New mobs found! Updating eggprices.ini");
 				createeggprices();
 			}
