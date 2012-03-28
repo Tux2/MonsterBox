@@ -1,6 +1,6 @@
 name: MonsterBox
 main: tux2.MonsterBox.MonsterBox
-version: 0.8
+version: 0.8.1
 commands:
    mbox:
       description: Sets the monster spawner you are looking at to the specified mob type.
