@@ -56,13 +56,21 @@ public class MonsterBoxBlockListener implements Listener {
 						event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "You just broke a " + ChatColor.RED + monster.toLowerCase() + ChatColor.DARK_GREEN + " spawner.");
 					}
 				}
+				//fix the beserk thingy that some players have been reporting.
+				boolean mcmmofix = false;
 				if(plugin.hasPermissions(event.getPlayer(), "monsterbox.drops")) {
 					ItemStack mobstack = new ItemStack(Material.MOB_SPAWNER, 1);
 					event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), mobstack);
+					mcmmofix = true;
 				}
 				if(!nodrops && stringmobs.containsKey(monster) && plugin.hasPermissions(event.getPlayer(), "monsterbox.dropegg." + monster.toLowerCase())) {
 					ItemStack eggstack = new ItemStack(383, 1, theSpawner.getSpawnedType().getTypeId());
 					event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), eggstack);
+					mcmmofix = true;
+				}
+				//If we dropped something, let's break the spawner
+				if(mcmmofix) {
+					event.getBlock().setType(Material.AIR);
 				}
 			}catch (Exception e) {
 			}
