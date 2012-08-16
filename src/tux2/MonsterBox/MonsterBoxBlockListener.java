@@ -68,9 +68,10 @@ public class MonsterBoxBlockListener implements Listener {
 					event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), eggstack);
 					mcmmofix = true;
 				}
-				//If we dropped something, let's break the spawner
+				//If we dropped something, let's break the spawner and don't let any XP drop.
 				if(mcmmofix) {
 					event.getBlock().setType(Material.AIR);
+					event.setExpToDrop(0);
 				}
 			}catch (Exception e) {
 			}
