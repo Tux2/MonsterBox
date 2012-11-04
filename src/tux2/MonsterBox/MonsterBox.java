@@ -449,6 +449,12 @@ public class MonsterBox extends JavaPlugin {
 	    				removeDisabledSpawner(targetBlock);
 	    			}
 	        		return true;
+	        	}else if(type.equalsIgnoreCase("Wither")) {
+	        		theSpawner.setSpawnedType(EntityType.WITHER);
+					if(disabledspawnerlocs.containsKey(locationBuilder(targetBlock.getLocation()))) {
+	    				removeDisabledSpawner(targetBlock);
+	    			}
+	        		return true;
 	        	}
 	            return false;
 	        }
