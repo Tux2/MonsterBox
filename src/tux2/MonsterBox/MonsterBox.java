@@ -608,6 +608,7 @@ public class MonsterBox extends JavaPlugin {
 					ex.printStackTrace();
 				}
 			}
+			out.close();
 		}catch (Exception e) {
 			// If it doesn't work, no great loss!
 			//e.printStackTrace();
