@@ -33,25 +33,21 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
 import org.getspout.spout.Spout;
 
-import com.nijiko.permissions.PermissionHandler;
-import com.nijikokun.bukkit.Permissions.Permissions;
-
 /**
  * MonsterBox for Bukkit
  *
  * @author tux2
  */
 public class MonsterBox extends JavaPlugin {
-    //private final MonsterBoxPlayerListener playerListener = new MonsterBoxPlayerListener(this);
-    //private final MonsterBoxBlockListener blockListener = new MonsterBoxBlockListener(this);
-    private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
-    private final ConcurrentHashMap<String, Double> mobprice = new ConcurrentHashMap<String, Double>();
-    private final ConcurrentHashMap<String, Double> mobeggprice = new ConcurrentHashMap<String, Double>();
-    private final ConcurrentHashMap<String, LinkedList<EntityType>> disabledspawners = new ConcurrentHashMap<String, LinkedList<EntityType>>();
-    ConcurrentHashMap<String, Integer> disabledspawnerlocs = new ConcurrentHashMap<String, Integer>();
-    private static PermissionHandler Permissions;
-    public MonsterBoxBlockListener bl;
-    public Economy iConomy = null;
+	//private final MonsterBoxPlayerListener playerListener = new MonsterBoxPlayerListener(this);
+	//private final MonsterBoxBlockListener blockListener = new MonsterBoxBlockListener(this);
+	private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
+	private final ConcurrentHashMap<String, Double> mobprice = new ConcurrentHashMap<String, Double>();
+	private final ConcurrentHashMap<String, Double> mobeggprice = new ConcurrentHashMap<String, Double>();
+	private final ConcurrentHashMap<String, LinkedList<EntityType>> disabledspawners = new ConcurrentHashMap<String, LinkedList<EntityType>>();
+	ConcurrentHashMap<String, Integer> disabledspawnerlocs = new ConcurrentHashMap<String, Integer>();
+	public MonsterBoxBlockListener bl;
+	public Economy iConomy = null;
 	boolean useiconomy = false;
 	public double iconomyprice = 0.0;
 	public Spout usespout = null;
@@ -60,44 +56,44 @@ public class MonsterBox extends JavaPlugin {
 	public int buttonwidth = 80;
 	public String version = "0.8";
 	public SpoutStuff ss = null;
-    public HashSet<Byte> transparentBlocks = new HashSet<Byte>();
-    private ConcurrentHashMap<String, String> mobcase = new ConcurrentHashMap<String, String>();
+	public HashSet<Byte> transparentBlocks = new HashSet<Byte>();
+	private ConcurrentHashMap<String, String> mobcase = new ConcurrentHashMap<String, String>();
 	public String eggthrowmessage = "I'm sorry, but you can't spawn that mob.";
 	public boolean needssilktouch = false;
 	public double eggprice = 0.0;
 	public boolean separateeggprices = false;
 	public String blocksavefile = "plugins/MonsterBox/disabledspawners.list";
-    public MonsterBox() {
-        super();
-        loadconfig();
-        loadprices();
-        loadeggprices();
-        loadDisabledSpawners();
-        
-      //Setting transparent blocks.
-        transparentBlocks.add((byte) 0); // Air
-        transparentBlocks.add((byte) 8); // Water
-        transparentBlocks.add((byte) 9); // Stationary Water
-        transparentBlocks.add((byte) 20); // Glass
-        transparentBlocks.add((byte) 30); // Cobweb
-        transparentBlocks.add((byte) 65); // Ladder
-        transparentBlocks.add((byte) 66); // Rail
-        transparentBlocks.add((byte) 78); // Snow
-        transparentBlocks.add((byte) 83); // Sugar Cane
-        transparentBlocks.add((byte) 101); // Iron Bars
-        transparentBlocks.add((byte) 102); // Glass Pane
-        transparentBlocks.add((byte) 106); // Vines
+	public MonsterBox() {
+		super();
+		loadconfig();
+		loadprices();
+		loadeggprices();
+		loadDisabledSpawners();
 
-        // NOTE: Event registration should be done in onEnable not here as all events are unregistered when a plugin is disabled
-    }
-    
-    private void loadprices() {
+		//Setting transparent blocks.
+		transparentBlocks.add((byte) 0); // Air
+		transparentBlocks.add((byte) 8); // Water
+		transparentBlocks.add((byte) 9); // Stationary Water
+		transparentBlocks.add((byte) 20); // Glass
+		transparentBlocks.add((byte) 30); // Cobweb
+		transparentBlocks.add((byte) 65); // Ladder
+		transparentBlocks.add((byte) 66); // Rail
+		transparentBlocks.add((byte) 78); // Snow
+		transparentBlocks.add((byte) 83); // Sugar Cane
+		transparentBlocks.add((byte) 101); // Iron Bars
+		transparentBlocks.add((byte) 102); // Glass Pane
+		transparentBlocks.add((byte) 106); // Vines
+
+		// NOTE: Event registration should be done in onEnable not here as all events are unregistered when a plugin is disabled
+	}
+
+	private void loadprices() {
 
 		File folder = new File("plugins/MonsterBox");
 
 		// check for existing file
 		File configFile = new File("plugins/MonsterBox/prices.ini");
-		
+
 		//if it exists, let's read it, if it doesn't, let's create it.
 		if (configFile.exists()) {
 			try {
@@ -114,7 +110,7 @@ public class MonsterBox extends JavaPlugin {
 					}
 				}
 			} catch (IOException e) {
-				
+
 			}
 			//A quick and dirty way to see if there are any new mobs we need to add to the list
 			if(mobprice.size() < CreatureTypes.values().length) {
@@ -128,16 +124,16 @@ public class MonsterBox extends JavaPlugin {
 			System.out.println("[MonsterBox] - creating file prices.ini");
 			createprices();
 		}
-		
+
 	}
-    
-    private void loadeggprices() {
+
+	private void loadeggprices() {
 
 		File folder = new File("plugins/MonsterBox");
 
 		// check for existing file
 		File configFile = new File("plugins/MonsterBox/eggprices.ini");
-		
+
 		//if it exists, let's read it, if it doesn't, let's create it.
 		if (configFile.exists()) {
 			try {
@@ -154,7 +150,7 @@ public class MonsterBox extends JavaPlugin {
 					}
 				}
 			} catch (IOException e) {
-				
+
 			}
 			//A quick and dirty way to see if there are any new mobs we need to add to the list
 			if(mobeggprice.size() < CreatureTypes.values().length) {
@@ -168,9 +164,9 @@ public class MonsterBox extends JavaPlugin {
 			System.out.println("[MonsterBox] - creating file eggprices.ini");
 			createeggprices();
 		}
-		
+
 	}
-    
+
 	private void createprices() {
 		try {
 			BufferedWriter outChannel = new BufferedWriter(new FileWriter("plugins/MonsterBox/prices.ini"));
@@ -186,9 +182,9 @@ public class MonsterBox extends JavaPlugin {
 		} catch (Exception e) {
 			System.out.println("[MonsterBox] - Prices file creation failed, using defaults.");
 		}
-		
+
 	}
-    
+
 	private void createeggprices() {
 		try {
 			BufferedWriter outChannel = new BufferedWriter(new FileWriter("plugins/MonsterBox/eggprices.ini"));
@@ -204,65 +200,53 @@ public class MonsterBox extends JavaPlugin {
 		} catch (Exception e) {
 			System.out.println("[MonsterBox] - Egg prices file creation failed, using defaults.");
 		}
-		
+
 	}
-	
+
 	public void onEnable() {
-    	setupPermissions();
-    	setupSpout();
-    	setupMobCase();
-        // Register our events
-        PluginManager pm = getServer().getPluginManager();
-        bl = new MonsterBoxBlockListener(this);
-        MonsterBoxPlayerListener pl = new MonsterBoxPlayerListener(this);
-        if(useiconomy ) {
-            setupEconomy();
-        }
-        pm.registerEvents(bl, this);
-        pm.registerEvents(pl, this);
-        if(usespout != null) {
-        	pm.registerEvents(new MonsterBoxScreenListener(this), this);
-        	ss = new SpoutStuff(this);
-        }
-        MonsterBoxCommands commandL = new MonsterBoxCommands(this);
-        PluginCommand batchcommand = this.getCommand("mbox");
+		setupSpout();
+		setupMobCase();
+		// Register our events
+		PluginManager pm = getServer().getPluginManager();
+		bl = new MonsterBoxBlockListener(this);
+		MonsterBoxPlayerListener pl = new MonsterBoxPlayerListener(this);
+		if(useiconomy ) {
+			setupEconomy();
+		}
+		pm.registerEvents(bl, this);
+		pm.registerEvents(pl, this);
+		if(usespout != null) {
+			pm.registerEvents(new MonsterBoxScreenListener(this), this);
+			ss = new SpoutStuff(this);
+		}
+		MonsterBoxCommands commandL = new MonsterBoxCommands(this);
+		PluginCommand batchcommand = this.getCommand("mbox");
 		batchcommand.setExecutor(commandL);
-        // EXAMPLE: Custom code, here we just output some info so we can check all is well
-        PluginDescriptionFile pdfFile = this.getDescription();
-        System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
-    }
-    public void onDisable() {
+		// EXAMPLE: Custom code, here we just output some info so we can check all is well
+		PluginDescriptionFile pdfFile = this.getDescription();
+		System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
+	}
+	public void onDisable() {
 
-        // NOTE: All registered events are automatically unregistered when a plugin is disabled
+		// NOTE: All registered events are automatically unregistered when a plugin is disabled
 
-        // EXAMPLE: Custom code, here we just output some info so we can check all is well
-        System.out.println("MonsterBox disabled!");
-    }
-    public boolean isDebugging(final Player player) {
-        if (debugees.containsKey(player)) {
-            return debugees.get(player);
-        } else {
-            return false;
-        }
-    }
+		// EXAMPLE: Custom code, here we just output some info so we can check all is well
+		System.out.println("MonsterBox disabled!");
+	}
+	public boolean isDebugging(final Player player) {
+		if (debugees.containsKey(player)) {
+			return debugees.get(player);
+		} else {
+			return false;
+		}
+	}
 
-    public void setDebugging(final Player player, final boolean value) {
-        debugees.put(player, value);
-    }
-    
-    private void setupPermissions() {
-        Plugin permissions = this.getServer().getPluginManager().getPlugin("Permissions");
+	public void setDebugging(final Player player, final boolean value) {
+		debugees.put(player, value);
+	}
 
-        if (Permissions == null) {
-            if (permissions != null) {
-                Permissions = ((Permissions)permissions).getHandler();
-            } else {
-            }
-        }
-    }
-    
-    private void setupSpout() {
-    	Plugin p = getServer().getPluginManager().getPlugin("Spout");
+	private void setupSpout() {
+		Plugin p = getServer().getPluginManager().getPlugin("Spout");
 		if(p == null){
 			usespout = null;
 			System.out.println("[MonsterBox] Spout not detected. Disabling spout support.");
@@ -274,82 +258,78 @@ public class MonsterBox extends JavaPlugin {
 			}
 			System.out.println("[MonsterBox] Spout detected. Spout support enabled.");
 		}
-    }
-    
-    public boolean hasPermissions(Player player, String node) {
-        if (Permissions != null) {
-            return Permissions.has(player, node);
-        } else {
-            return player.hasPermission(node);
-        }
-    }
-    
-    private void loadconfig() {
+	}
+
+	public boolean hasPermissions(Player player, String node) {
+		return player.hasPermission(node);
+	}
+
+	private void loadconfig() {
 		File folder = new File("plugins/MonsterBox");
 
 		// check for existing file
 		File configFile = new File("plugins/MonsterBox/settings.ini");
-		
+
 		//if it exists, let's read it, if it doesn't, let's create it.
 		if (configFile.exists()) {
 			try {
 				Properties themapSettings = new Properties();
 				themapSettings.load(new FileInputStream(configFile));
-		        
-		        String iconomy = themapSettings.getProperty("useEconomy", "false");
-		        String price = themapSettings.getProperty("price", "0.0");
-		        String eggsprice = themapSettings.getProperty("eggprice", "0.0");
-		        String sprices = themapSettings.getProperty("separateprices", "false");
-		        String seggprices = themapSettings.getProperty("separateeggprices", "false");
-		        String swidth = themapSettings.getProperty("buttonwidth", "100");
-		        String stool = themapSettings.getProperty("changetool", String.valueOf(Material.GOLD_SWORD.getId()));
-		        //If the version isn't set, the file must be at 0.2
-		        String theversion = themapSettings.getProperty("version", "0.1");
-		        eggthrowmessage = themapSettings.getProperty("eggdenymessage", eggthrowmessage);
-		        String silktouch = themapSettings.getProperty("needssilktouch", "false");
-		        
-		        needssilktouch = stringToBool(silktouch);
-			    
-			    useiconomy = stringToBool(iconomy);
-			    separateprices = stringToBool(sprices);
-			    separateeggprices = stringToBool(seggprices);
-			    try {
-			    	tool = Integer.parseInt(stool.trim());
-			    } catch (Exception ex) {
-			    	
-			    }
-			    try {
-			    	buttonwidth = Integer.parseInt(swidth.trim());
-			    } catch (Exception ex) {
-			    	
-			    }
-			    try {
-			    	iconomyprice = Double.parseDouble(price.trim());
-			    } catch (Exception ex) {
-			    	
-			    }
-			    try {
-			    	eggprice = Double.parseDouble(eggsprice.trim());
-			    } catch (Exception ex) {
-			    	
-			    }
-			    //Let's see if we need to upgrade the config file
-			    double dbversion = 0.1;
-			    try {
-			    	dbversion = Double.parseDouble(theversion.trim());
-			    } catch (Exception ex) {
-			    	
-			    }
-			    if(dbversion < 0.8) {
-			    	//If we are using the old config file let's convert that variable... otherwise we won't want to do that...
-			    	if(dbversion == 0.1) {
-				        String sconomy = themapSettings.getProperty("useiConomy", "false");
-					    useiconomy = stringToBool(sconomy);
-			    	}
-			    	updateIni();
-			    }
+
+				String iconomy = themapSettings.getProperty("useEconomy", "false");
+				String price = themapSettings.getProperty("price", "0.0");
+				String eggsprice = themapSettings.getProperty("eggprice", "0.0");
+				String sprices = themapSettings.getProperty("separateprices", "false");
+				String seggprices = themapSettings.getProperty("separateeggprices", "false");
+				String swidth = themapSettings.getProperty("buttonwidth", "100");
+				String stool = themapSettings.getProperty("changetool", String.valueOf(Material.GOLD_SWORD.getId()));
+				//If the version isn't set, the file must be at 0.2
+				String theversion = themapSettings.getProperty("version", "0.1");
+				eggthrowmessage = themapSettings.getProperty("eggdenymessage", eggthrowmessage);
+				String silktouch = themapSettings.getProperty("needssilktouch", "false");
+
+				needssilktouch = stringToBool(silktouch);
+
+				useiconomy = stringToBool(iconomy);
+				separateprices = stringToBool(sprices);
+				separateeggprices = stringToBool(seggprices);
+				try {
+					tool = Integer.parseInt(stool.trim());
+				} catch (Exception ex) {
+
+				}
+				try {
+					buttonwidth = Integer.parseInt(swidth.trim());
+				} catch (Exception ex) {
+
+				}
+				try {
+					iconomyprice = Double.parseDouble(price.trim());
+				} catch (Exception ex) {
+
+				}
+				try {
+					eggprice = Double.parseDouble(eggsprice.trim());
+				} catch (Exception ex) {
+
+				}
+				//Let's see if we need to upgrade the config file
+				double dbversion = 0.1;
+				try {
+					dbversion = Double.parseDouble(theversion.trim());
+				} catch (Exception ex) {
+
+				}
+				if(dbversion < 0.8) {
+					//If we are using the old config file let's convert that variable... otherwise we won't want to do that...
+					if(dbversion == 0.1) {
+						String sconomy = themapSettings.getProperty("useiConomy", "false");
+						useiconomy = stringToBool(sconomy);
+					}
+					updateIni();
+				}
 			} catch (IOException e) {
-				
+
 			}
 		}else {
 			System.out.println("[MonsterBox] Configuration file not found");
@@ -395,9 +375,9 @@ public class MonsterBox extends JavaPlugin {
 		} catch (Exception e) {
 			System.out.println("[MonsterBox] - file creation failed, using defaults.");
 		}
-		
+
 	}
-	
+
 	public boolean hasEconomy() {
 		if(iConomy != null) {
 			return iConomy.isEnabled();
@@ -405,14 +385,14 @@ public class MonsterBox extends JavaPlugin {
 			return false;
 		}
 	}
-	
+
 	private synchronized boolean stringToBool(String thebool) {
 		boolean result;
 		if (thebool.trim().equalsIgnoreCase("true") || thebool.trim().equalsIgnoreCase("yes")) {
-	    	result = true;
-	    } else {
-	    	result = false;
-	    }
+			result = true;
+		} else {
+			result = false;
+		}
 		return result;
 	}
 
@@ -422,47 +402,47 @@ public class MonsterBox extends JavaPlugin {
 		try {
 			CreatureSpawner theSpawner = (CreatureSpawner) targetBlock.getState();
 			if (mobcase.containsKey(type.toLowerCase().trim())) {
-	    		type = mobcase.get(type.toLowerCase().trim());
-	    	}else {
-	    		type = this.capitalCase(type);
-	    	}
-	    	EntityType ct = EntityType.fromName(type);
-	        if (ct == null) {
-	        	//It seems there's a typo with the ocelot and iron golem in the beta builds...
-	        	//If I don't do a quick hack I'm going to get all the noobs wondering why
-	        	//it doesn't work right...
-	        	if(type.equalsIgnoreCase("ocelot")) {
-	        		theSpawner.setSpawnedType(EntityType.OCELOT);
+				type = mobcase.get(type.toLowerCase().trim());
+			}else {
+				type = this.capitalCase(type);
+			}
+			EntityType ct = EntityType.fromName(type);
+			if (ct == null) {
+				//It seems there's a typo with the ocelot and iron golem in the beta builds...
+				//If I don't do a quick hack I'm going to get all the noobs wondering why
+				//it doesn't work right...
+				if(type.equalsIgnoreCase("ocelot")) {
+					theSpawner.setSpawnedType(EntityType.OCELOT);
 					if(disabledspawnerlocs.containsKey(locationBuilder(targetBlock.getLocation()))) {
-	    				removeDisabledSpawner(targetBlock);
-	    			}
-	        		return true;
-	        	}else if(type.equalsIgnoreCase("IronGolem")) {
-	        		theSpawner.setSpawnedType(EntityType.IRON_GOLEM);
+						removeDisabledSpawner(targetBlock);
+					}
+					return true;
+				}else if(type.equalsIgnoreCase("IronGolem")) {
+					theSpawner.setSpawnedType(EntityType.IRON_GOLEM);
 					if(disabledspawnerlocs.containsKey(locationBuilder(targetBlock.getLocation()))) {
-	    				removeDisabledSpawner(targetBlock);
-	    			}
-	        		return true;
-	        	}else if(type.equalsIgnoreCase("MagmaCube")) {
-	        		theSpawner.setSpawnedType(EntityType.MAGMA_CUBE);
+						removeDisabledSpawner(targetBlock);
+					}
+					return true;
+				}else if(type.equalsIgnoreCase("MagmaCube")) {
+					theSpawner.setSpawnedType(EntityType.MAGMA_CUBE);
 					if(disabledspawnerlocs.containsKey(locationBuilder(targetBlock.getLocation()))) {
-	    				removeDisabledSpawner(targetBlock);
-	    			}
-	        		return true;
-	        	}else if(type.equalsIgnoreCase("Wither")) {
-	        		theSpawner.setSpawnedType(EntityType.WITHER);
+						removeDisabledSpawner(targetBlock);
+					}
+					return true;
+				}else if(type.equalsIgnoreCase("Wither")) {
+					theSpawner.setSpawnedType(EntityType.WITHER);
 					if(disabledspawnerlocs.containsKey(locationBuilder(targetBlock.getLocation()))) {
-	    				removeDisabledSpawner(targetBlock);
-	    			}
-	        		return true;
-	        	}
-	            return false;
-	        }
-	        theSpawner.setSpawnedType(ct);
-	        if(disabledspawnerlocs.containsKey(locationBuilder(targetBlock.getLocation()))) {
+						removeDisabledSpawner(targetBlock);
+					}
+					return true;
+				}
+				return false;
+			}
+			theSpawner.setSpawnedType(ct);
+			if(disabledspawnerlocs.containsKey(locationBuilder(targetBlock.getLocation()))) {
 				removeDisabledSpawner(targetBlock);
 			}
-	        return true;
+			return true;
 		}catch (Exception e) {
 			return false;
 		}
@@ -470,9 +450,9 @@ public class MonsterBox extends JavaPlugin {
 
 	String capitalCase(String s)
 	{
-	    return s.toUpperCase().charAt(0) + s.toLowerCase().substring(1);
+		return s.toUpperCase().charAt(0) + s.toLowerCase().substring(1);
 	}
-	
+
 	public double getMobPrice(String name) {
 		if(separateprices && mobprice.containsKey(name.toLowerCase())) {
 			return mobprice.get(name.toLowerCase()).doubleValue();
@@ -480,7 +460,7 @@ public class MonsterBox extends JavaPlugin {
 			return iconomyprice;
 		}
 	}
-	
+
 	public double getEggMobPrice(String name) {
 		if(separateeggprices && mobeggprice.containsKey(name.toLowerCase())) {
 			return mobeggprice.get(name.toLowerCase()).doubleValue();
@@ -488,7 +468,7 @@ public class MonsterBox extends JavaPlugin {
 			return eggprice;
 		}
 	}
-	
+
 	private void setupMobCase() {
 		CreatureTypes[] mobs = CreatureTypes.values();
 		for(CreatureTypes mob : mobs) {
@@ -496,15 +476,15 @@ public class MonsterBox extends JavaPlugin {
 			mobcase.put(mobname.toLowerCase(), mobname);
 		}
 	}
-	
+
 	private void setupEconomy()
-    {
-        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-        if (economyProvider != null) {
-            iConomy = economyProvider.getProvider();
-        }
-    }
-	
+	{
+		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+		if (economyProvider != null) {
+			iConomy = economyProvider.getProvider();
+		}
+	}
+
 	public boolean canSpawnMob(Location loc, EntityType type) {
 		String locname = locationBuilder(loc);
 		if(disabledspawners.containsKey(locname)) {
@@ -512,11 +492,11 @@ public class MonsterBox extends JavaPlugin {
 		}
 		return true;
 	}
-	
+
 	public String locationBuilder(Location loc) {
 		return loc.getBlockX() + "." + loc.getBlockY() + "." + loc.getBlockZ() + "." + loc.getWorld().getName();
 	}
-	
+
 	public void addDisabledSpawner(Block spawner) {
 		if(spawner.getType() == Material.MOB_SPAWNER) {
 			CreatureSpawner theSpawner = (CreatureSpawner) spawner.getState();
@@ -524,7 +504,7 @@ public class MonsterBox extends JavaPlugin {
 			addDisabledSpawner(spawner.getLocation(), mobname);
 		}
 	}
-	
+
 	public void addDisabledSpawner(Location spawner, EntityType mobname) {
 		int startx = spawner.getBlockX() - 4;
 		int endx = startx + 8;
@@ -549,7 +529,7 @@ public class MonsterBox extends JavaPlugin {
 		}
 		saveDisabledSpawners();
 	}
-	
+
 	public void removeDisabledSpawner(Block spawner) {
 		if(spawner.getType() == Material.MOB_SPAWNER) {
 			CreatureSpawner theSpawner = (CreatureSpawner) spawner.getState();
@@ -557,7 +537,7 @@ public class MonsterBox extends JavaPlugin {
 			removeDisabledSpawner(spawner.getLocation(), mobname);
 		}
 	}
-	
+
 	public void removeDisabledSpawner(Location spawner, EntityType mobname) {
 		int startx = spawner.getBlockX() - 4;
 		int endx = startx + 8;
@@ -578,7 +558,7 @@ public class MonsterBox extends JavaPlugin {
 		}
 		saveDisabledSpawners();
 	}
-	
+
 	public void saveDisabledSpawners() {
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(blocksavefile)));
@@ -588,7 +568,7 @@ public class MonsterBox extends JavaPlugin {
 		}catch (Exception e) {
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void loadDisabledSpawners() {
 		try {
