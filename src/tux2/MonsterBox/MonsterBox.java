@@ -75,15 +75,28 @@ public class MonsterBox extends JavaPlugin {
 		transparentBlocks.add((byte) 8); // Water
 		transparentBlocks.add((byte) 9); // Stationary Water
 		transparentBlocks.add((byte) 20); // Glass
+		transparentBlocks.add((byte) 27); // Powered Rail
+		transparentBlocks.add((byte) 28); // Detector Rail
 		transparentBlocks.add((byte) 30); // Cobweb
+		transparentBlocks.add((byte) 31); // Grass/Fern
+		transparentBlocks.add((byte) 32); // Dead Bush
+		transparentBlocks.add((byte) 37); // Dandelion
+		transparentBlocks.add((byte) 38); // Flowers
+		transparentBlocks.add((byte) 39); // Brown Mushroom
+		transparentBlocks.add((byte) 40); // Red Mushroom
 		transparentBlocks.add((byte) 65); // Ladder
 		transparentBlocks.add((byte) 66); // Rail
 		transparentBlocks.add((byte) 78); // Snow
 		transparentBlocks.add((byte) 83); // Sugar Cane
+		transparentBlocks.add((byte) 95); // Stained Glass
 		transparentBlocks.add((byte) 101); // Iron Bars
 		transparentBlocks.add((byte) 102); // Glass Pane
 		transparentBlocks.add((byte) 106); // Vines
-
+		transparentBlocks.add((byte) 160); // Stained Glass Pane
+		transparentBlocks.add((byte) 171); // Carpet
+		transparentBlocks.add((byte) 157); // Activator Rail
+		transparentBlocks.add((byte) 175); // Tall Grass/Fern/Flowers
+                
 		// NOTE: Event registration should be done in onEnable not here as all events are unregistered when a plugin is disabled
 	}
 
