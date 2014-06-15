@@ -26,7 +26,7 @@ public class MonsterBoxCommands implements CommandExecutor {
 			Block targetblock = player.getTargetBlock(plugin.transparentBlocks, 40);
 			if(commandLabel.equalsIgnoreCase("mbox")){
 				if(args.length > 1) {
-					if(args[0].trim().equalsIgnoreCase("set") && targetblock.getTypeId() == 52) {
+					if(args[0].trim().equalsIgnoreCase("set") && targetblock.getType() == Material.MOB_SPAWNER) {
 						if(plugin.hasPermissions(player, "monsterbox.set")) {
 							if(plugin.hasPermissions(player, "monsterbox.spawn." + args[1].toLowerCase())) {
 								if(plugin.useiconomy && plugin.hasEconomy()) {
@@ -72,13 +72,13 @@ public class MonsterBoxCommands implements CommandExecutor {
 						return false;
 					}
 				} else if(args.length == 1) {
-					if(args[0].trim().equalsIgnoreCase("set") && targetblock.getTypeId() == 52) {
+					if(args[0].trim().equalsIgnoreCase("set") && targetblock.getType() == Material.MOB_SPAWNER) {
 						if(plugin.usespout != null) {
 							SpoutPlayer splayer = SpoutManager.getPlayer(player);
 							if(splayer.isSpoutCraftEnabled()) {
 								splayer.getMainScreen().closePopup();
 								CreatureSpawner theSpawner = (CreatureSpawner) targetblock.getState();
-								String monster = theSpawner.getCreatureTypeName().toLowerCase();
+								String monster = theSpawner.getSpawnedType().toString().toLowerCase();
 								plugin.ss.createMonsterGUI("This is currently a " + monster + " spawner.", !plugin.hasPermissions(splayer, "monsterbox.free"), splayer);
 								return true;
 							}
@@ -101,7 +101,7 @@ public class MonsterBoxCommands implements CommandExecutor {
 							if(targetblock.getType() == Material.MOB_SPAWNER) {
 								try {
 									CreatureSpawner theSpawner = (CreatureSpawner) targetblock.getState();
-									String monster = theSpawner.getCreatureTypeName().toLowerCase();
+									String monster = theSpawner.getSpawnedType().toString().toLowerCase();
 									player.sendMessage(ChatColor.GREEN + "That is a " + ChatColor.RED + monster + ChatColor.GREEN + " spawner.");
 							        return true;
 								}catch (Exception e) {

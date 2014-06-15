@@ -52,7 +52,7 @@ public class MonsterBox extends JavaPlugin {
 	public double iconomyprice = 0.0;
 	public Spout usespout = null;
 	public boolean separateprices = false;
-	public int tool = Material.GOLD_SWORD.getId();
+	public Material tool = Material.GOLD_SWORD;
 	public int buttonwidth = 80;
 	public String version = "0.8";
 	public SpoutStuff ss = null;
@@ -282,7 +282,7 @@ public class MonsterBox extends JavaPlugin {
 				String sprices = themapSettings.getProperty("separateprices", "false");
 				String seggprices = themapSettings.getProperty("separateeggprices", "false");
 				String swidth = themapSettings.getProperty("buttonwidth", "100");
-				String stool = themapSettings.getProperty("changetool", String.valueOf(Material.GOLD_SWORD.getId()));
+				String stool = themapSettings.getProperty("changetool", Material.GOLD_SWORD.toString());
 				//If the version isn't set, the file must be at 0.2
 				String theversion = themapSettings.getProperty("version", "0.1");
 				eggthrowmessage = themapSettings.getProperty("eggdenymessage", eggthrowmessage);
@@ -294,9 +294,11 @@ public class MonsterBox extends JavaPlugin {
 				separateprices = stringToBool(sprices);
 				separateeggprices = stringToBool(seggprices);
 				try {
-					tool = Integer.parseInt(stool.trim());
+					int itool = Integer.parseInt(stool.trim());
+					tool = Material.getMaterial(itool);
+					updateIni();
 				} catch (Exception ex) {
-
+					tool = Material.getMaterial(stool.trim().toUpperCase());
 				}
 				try {
 					buttonwidth = Integer.parseInt(swidth.trim());
@@ -360,7 +362,7 @@ public class MonsterBox extends JavaPlugin {
 					"# set this to true.\n" +
 					"separateeggprices = " + separateeggprices + "\n" +
 					"# changetool is the tool that opens up the spout gui for changing the monster spawner.\n" +
-					"changetool = " + tool + "\n" +
+					"changetool = " + tool.toString() + "\n" +
 					"# needssilktouch Does the player need a silk touch enchanted tool to get a spawner?.\n" +
 					"needssilktouch = " + needssilktouch + "\n" +
 					"# buttonwidth changes the width of the buttons in the spoutcraft gui, just in case the\n" +
@@ -404,38 +406,74 @@ public class MonsterBox extends JavaPlugin {
 			if (mobcase.containsKey(type.toLowerCase().trim())) {
 				type = mobcase.get(type.toLowerCase().trim());
 			}else {
-				type = this.capitalCase(type);
+				type = capitalCase(type);
 			}
-			EntityType ct = EntityType.fromName(type);
-			if (ct == null) {
-				//It seems there's a typo with the ocelot and iron golem in the beta builds...
-				//If I don't do a quick hack I'm going to get all the noobs wondering why
-				//it doesn't work right...
-				if(type.equalsIgnoreCase("ocelot")) {
-					theSpawner.setSpawnedType(EntityType.OCELOT);
-					if(disabledspawnerlocs.containsKey(locationBuilder(targetBlock.getLocation()))) {
-						removeDisabledSpawner(targetBlock);
-					}
-					return true;
-				}else if(type.equalsIgnoreCase("IronGolem")) {
-					theSpawner.setSpawnedType(EntityType.IRON_GOLEM);
-					if(disabledspawnerlocs.containsKey(locationBuilder(targetBlock.getLocation()))) {
-						removeDisabledSpawner(targetBlock);
-					}
-					return true;
-				}else if(type.equalsIgnoreCase("MagmaCube")) {
-					theSpawner.setSpawnedType(EntityType.MAGMA_CUBE);
-					if(disabledspawnerlocs.containsKey(locationBuilder(targetBlock.getLocation()))) {
-						removeDisabledSpawner(targetBlock);
-					}
-					return true;
-				}else if(type.equalsIgnoreCase("Wither")) {
-					theSpawner.setSpawnedType(EntityType.WITHER);
-					if(disabledspawnerlocs.containsKey(locationBuilder(targetBlock.getLocation()))) {
-						removeDisabledSpawner(targetBlock);
-					}
-					return true;
+			EntityType ct = null;
+			if(type.equalsIgnoreCase("bat")) {
+				ct = EntityType.BAT;
+			}else if(type.equalsIgnoreCase("blaze")) {
+				ct = EntityType.BLAZE;
+			}else if(type.equalsIgnoreCase("cavespider")) {
+				ct = EntityType.CAVE_SPIDER;
+			}else if(type.equalsIgnoreCase("chicken")) {
+				ct = EntityType.CHICKEN;
+			}else if(type.equalsIgnoreCase("cow")) {
+				ct = EntityType.COW;
+			}else if(type.equalsIgnoreCase("creeper")) {
+				ct = EntityType.CREEPER;
+			}else if(type.equalsIgnoreCase("enderdragon")) {
+				ct = EntityType.ENDER_DRAGON;
+			}else if(type.equalsIgnoreCase("enderman")) {
+				ct = EntityType.ENDERMAN;
+			}else if(type.equalsIgnoreCase("ghast")) {
+				ct = EntityType.GHAST;
+			}else if(type.equalsIgnoreCase("giant")) {
+				ct = EntityType.GIANT;
+			}else if(type.equalsIgnoreCase("horse")) {
+				ct = EntityType.HORSE;
+			}else if(type.equalsIgnoreCase("irongolem")) {
+				ct = EntityType.IRON_GOLEM;
+			}else if(type.equalsIgnoreCase("magmacube")) {
+				ct = EntityType.MAGMA_CUBE;
+			}else if(type.equalsIgnoreCase("mushroomcow")) {
+				ct = EntityType.MUSHROOM_COW;
+			}else if(type.equalsIgnoreCase("ocelot")) {
+				ct = EntityType.OCELOT;
+			}else if(type.equalsIgnoreCase("pig")) {
+				ct = EntityType.PIG;
+			}else if(type.equalsIgnoreCase("sheep")) {
+				ct = EntityType.SHEEP;
+			}else if(type.equalsIgnoreCase("silverfish")) {
+				ct = EntityType.SILVERFISH;
+			}else if(type.equalsIgnoreCase("skeleton")) {
+				ct = EntityType.SKELETON;
+			}else if(type.equalsIgnoreCase("slime")) {
+				ct = EntityType.SLIME;
+			}else if(type.equalsIgnoreCase("snowman")) {
+				ct = EntityType.SNOWMAN;
+			}else if(type.equalsIgnoreCase("spider")) {
+				ct = EntityType.SPIDER;
+			}else if(type.equalsIgnoreCase("squid")) {
+				ct = EntityType.SQUID;
+			}else if(type.equalsIgnoreCase("villager")) {
+				ct = EntityType.VILLAGER;
+			}else if(type.equalsIgnoreCase("witch")) {
+				ct = EntityType.WITCH;
+			}else if(type.equalsIgnoreCase("wither")) {
+				ct = EntityType.WITHER;
+			}else if(type.equalsIgnoreCase("wolf")) {
+				ct = EntityType.WOLF;
+			}else if(type.equalsIgnoreCase("zombie")) {
+				ct = EntityType.ZOMBIE;
+			}
+			if(ct == null) {
+				try {
+					ct = EntityType.valueOf(type.toUpperCase());
+				}catch (Exception e) {
+					
 				}
+			}
+			if (ct == null) {
 				return false;
 			}
 			theSpawner.setSpawnedType(ct);
@@ -444,6 +482,7 @@ public class MonsterBox extends JavaPlugin {
 			}
 			return true;
 		}catch (Exception e) {
+			e.printStackTrace();
 			return false;
 		}
 	}

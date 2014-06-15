@@ -1,6 +1,6 @@
 name: MonsterBox
 main: tux2.MonsterBox.MonsterBox
-version: 1.0
+version: 1.1
 commands:
    mbox:
       description: Sets the monster spawner you are looking at to the specified mob type.
@@ -55,6 +55,7 @@ permissions:
             monsterbox.spawn.snowman: true
             monsterbox.spawn.irongolem: true
             monsterbox.spawn.ocelot: true
+            monsterbox.spawn.horse: true
     monsterbox.dropegg.*:
         default: op
         description: Gives access to change a mob spawner to any type
@@ -85,6 +86,7 @@ permissions:
             monsterbox.dropegg.snowman: true
             monsterbox.dropegg.irongolem: true
             monsterbox.dropegg.ocelot: true
+            monsterbox.dropegg.horse: true
     monsterbox.eggspawn.*:
         default: op
         description: Gives access to change a mob spawner to any type using eggs
@@ -115,6 +117,7 @@ permissions:
             monsterbox.eggspawn.snowman: true
             monsterbox.eggspawn.irongolem: true
             monsterbox.eggspawn.ocelot: true
+            monsterbox.eggspawn.horse: true
     monsterbox.eggthrow.*:
         default: op
         description: Gives access to change a mob spawner to any type using eggs
@@ -145,6 +148,7 @@ permissions:
             monsterbox.eggthrow.snowman: true
             monsterbox.eggthrow.irongolem: true
             monsterbox.eggthrow.ocelot: true
+            monsterbox.eggthrow.horse: true
     monsterbox.set:
         description: Allows you to set a monster spawner type.
         default: op
@@ -267,6 +271,10 @@ permissions:
         description: Allows you to set any spawner to be a snowman spawner.
         default: op
         command: "/mbox set snowman"
+    monsterbox.spawn.horse:
+        description: Allows you to set any spawner to be a horse spawner.
+        default: op
+        command: "/mbox set horse"
     monsterbox.eggspawn.pig:
         description: Allows you to set any spawner to be a pig spawner using eggs.
         default: op
@@ -338,4 +346,7 @@ permissions:
         default: op
     monsterbox.eggspawn.snowman:
         description: Allows you to set any spawner to be a snowman spawner using eggs.
+        default: op
+    monsterbox.eggspawn.horse:
+        description: Allows you to set any spawner to be a horse spawner using eggs.
         default: op
