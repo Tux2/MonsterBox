@@ -1,6 +1,6 @@
 name: MonsterBox
 main: tux2.MonsterBox.MonsterBox
-version: 1.1
+version: 1.2
 commands:
    mbox:
       description: Sets the monster spawner you are looking at to the specified mob type.
@@ -56,6 +56,9 @@ permissions:
             monsterbox.spawn.irongolem: true
             monsterbox.spawn.ocelot: true
             monsterbox.spawn.horse: true
+            monsterbox.spawn.endermite: true
+            monsterbox.spawn.guardian: true
+            monsterbox.spawn.rabbit: true
     monsterbox.dropegg.*:
         default: op
         description: Gives access to change a mob spawner to any type
@@ -87,6 +90,9 @@ permissions:
             monsterbox.dropegg.irongolem: true
             monsterbox.dropegg.ocelot: true
             monsterbox.dropegg.horse: true
+            monsterbox.dropegg.endermite: true
+            monsterbox.dropegg.guardian: true
+            monsterbox.dropegg.rabbit: true
     monsterbox.eggspawn.*:
         default: op
         description: Gives access to change a mob spawner to any type using eggs
@@ -118,6 +124,9 @@ permissions:
             monsterbox.eggspawn.irongolem: true
             monsterbox.eggspawn.ocelot: true
             monsterbox.eggspawn.horse: true
+            monsterbox.eggspawn.endermite: true
+            monsterbox.eggspawn.guardian: true
+            monsterbox.eggspawn.rabbit: true
     monsterbox.eggthrow.*:
         default: op
         description: Gives access to change a mob spawner to any type using eggs
@@ -149,6 +158,9 @@ permissions:
             monsterbox.eggthrow.irongolem: true
             monsterbox.eggthrow.ocelot: true
             monsterbox.eggthrow.horse: true
+            monsterbox.eggthrow.endermite: true
+            monsterbox.eggthrow.guardian: true
+            monsterbox.eggthrow.rabbit: true
     monsterbox.set:
         description: Allows you to set a monster spawner type.
         default: op
@@ -275,6 +287,18 @@ permissions:
         description: Allows you to set any spawner to be a horse spawner.
         default: op
         command: "/mbox set horse"
+    monsterbox.spawn.endermite:
+        description: Allows you to set any spawner to be a endermite spawner.
+        default: op
+        command: "/mbox set endermite"
+    monsterbox.spawn.guardian:
+        description: Allows you to set any spawner to be a guardian spawner.
+        default: op
+        command: "/mbox set guardian"
+    monsterbox.spawn.rabbit:
+        description: Allows you to set any spawner to be a rabbit spawner.
+        default: op
+        command: "/mbox set rabbit"
     monsterbox.eggspawn.pig:
         description: Allows you to set any spawner to be a pig spawner using eggs.
         default: op
@@ -349,4 +373,13 @@ permissions:
         default: op
     monsterbox.eggspawn.horse:
         description: Allows you to set any spawner to be a horse spawner using eggs.
+        default: op
+    monsterbox.eggspawn.guardian:
+        description: Allows you to set any spawner to be a guardian spawner using eggs.
+        default: op
+    monsterbox.eggspawn.endermite:
+        description: Allows you to set any spawner to be an endermite spawner using eggs.
+        default: op
+    monsterbox.eggspawn.rabbit:
+        description: Allows you to set any spawner to be a rabbit spawner using eggs.
         default: op

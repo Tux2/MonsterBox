@@ -465,6 +465,14 @@ public class MonsterBox extends JavaPlugin {
 				ct = EntityType.WOLF;
 			}else if(type.equalsIgnoreCase("zombie")) {
 				ct = EntityType.ZOMBIE;
+			}else if(type.equalsIgnoreCase("endermite")) {
+				ct = EntityType.ENDERMITE;
+			}else if(type.equalsIgnoreCase("guardian")) {
+				ct = EntityType.GUARDIAN;
+			}else if(type.equalsIgnoreCase("rabbit")) {
+				ct = EntityType.RABBIT;
+			}else if(type.equalsIgnoreCase("bunny")) {
+				ct = EntityType.RABBIT;
 			}
 			if(ct == null) {
 				try {

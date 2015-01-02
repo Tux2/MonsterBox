@@ -30,7 +30,10 @@ public enum CreatureTypes {
 	Wither(64),
 	Wolf(95),
 	Zombie(54),
-	Horse(100);
+	Horse(100),
+	Endermite(67),
+	Guardian(68),
+	Rabbit(101);
     
     public static CreatureTypes fromString(String text) {
 		for (CreatureTypes m : CreatureTypes.values()) {
