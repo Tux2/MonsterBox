@@ -15,6 +15,8 @@ import org.bukkit.Material;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
+import Tux2.TuxTwoLib.SpawnEggs;
+
 public class MonsterBoxPlayerListener implements Listener {
 	
 	MonsterBox plugin;
@@ -23,14 +25,15 @@ public class MonsterBoxPlayerListener implements Listener {
 		this.plugin = plugin;
 	}
 	
+	@SuppressWarnings("unused")
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerInteract(PlayerInteractEvent event)  {
 		if(!event.isCancelled()) {
-			ItemStack is = event.getPlayer().getItemInHand();
+			ItemStack is = event.getPlayer().getInventory().getItemInMainHand();
 			Player player = event.getPlayer();
 			if(is.getType() == Material.MONSTER_EGG && event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType() == Material.MOB_SPAWNER) {
-				if(plugin.hasPermissions(player, "monsterbox.eggset") && plugin.bl.intmobs.containsKey(new Integer(is.getDurability()))) {
-					String type = plugin.bl.intmobs.get(new Integer(is.getDurability()));
+				if(plugin.hasPermissions(player, "monsterbox.eggset") && plugin.bl.entitymobs.containsKey(SpawnEggs.getSpawnEggType(is))) {
+					String type = plugin.bl.entitymobs.get(SpawnEggs.getSpawnEggType(is));
 					Block theSpawner = event.getClickedBlock();
 			        if (plugin.hasPermissions(player, "monsterbox.eggspawn." + type.toLowerCase())) {
 			        	if(plugin.useiconomy && plugin.getEggMobPrice(type) > 0) {
@@ -47,7 +50,7 @@ public class MonsterBoxPlayerListener implements Listener {
 				        	//Now that we set the spawner type let's remove the egg, but only if the player is in survival mode...
 				        	if(player.getGameMode() == GameMode.SURVIVAL) {
 				        		if(is.getAmount() == 1) {
-				        			player.setItemInHand(new ItemStack(Material.AIR));
+				        			player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
 				        		}else {
 						        	is.setAmount(is.getAmount() - 1);
 				        		}
@@ -77,7 +80,7 @@ public class MonsterBoxPlayerListener implements Listener {
 					}
 				}
 			}else if(is.getType() == Material.MONSTER_EGG && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				String type = plugin.bl.intmobs.get(new Integer(is.getDurability()));
+				String type = plugin.bl.entitymobs.get(SpawnEggs.getSpawnEggType(is));
 				if(type != null && !plugin.hasPermissions(player, "monsterbox.eggthrow." + type.toLowerCase())) {
 					if(plugin.hasPermissions(player, "monsterbox.eggthrowmessage")) {
 						player.sendMessage(plugin.eggthrowmessage);

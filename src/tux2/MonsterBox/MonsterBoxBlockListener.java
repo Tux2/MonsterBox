@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -17,26 +18,28 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 
+import Tux2.TuxTwoLib.SpawnEggs;
+
 public class MonsterBoxBlockListener implements Listener {
 	
 	MonsterBox plugin;
-	public ConcurrentHashMap<Integer, String> intmobs = new ConcurrentHashMap<Integer, String>();
-	public ConcurrentHashMap<String, Integer> stringmobs = new ConcurrentHashMap<String, Integer>();
+	public ConcurrentHashMap<EntityType, String> entitymobs = new ConcurrentHashMap<EntityType, String>();
+	public ConcurrentHashMap<String, EntityType> stringmobs = new ConcurrentHashMap<String, EntityType>();
 	
 	public MonsterBoxBlockListener(MonsterBox plugin) {
 		this.plugin = plugin;
 		CreatureTypes[] mobs = CreatureTypes.values();
 		for(CreatureTypes mob : mobs) {
-			intmobs.put(new Integer(mob.id), mob.toString());
-			stringmobs.put(mob.toString(), new Integer(mob.id));
+			entitymobs.put(mob.entity, mob.toString());
+			stringmobs.put(mob.toString(), mob.entity);
 		}
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockBreak(BlockBreakEvent event) {
-		event.getPlayer().getItemInHand();
+		event.getPlayer().getInventory().getItemInMainHand();
 		if(!event.isCancelled() && event.getBlock().getType() == Material.MOB_SPAWNER) {
-			ItemStack is = event.getPlayer().getItemInHand();
+			ItemStack is = event.getPlayer().getInventory().getItemInMainHand();
 			//Check to see if the tool needs to be enchanted.
 			boolean nodrops = false;
 			if(plugin.disabledspawnerlocs.containsKey(plugin.locationBuilder(event.getBlock().getLocation()))) {
@@ -48,7 +51,7 @@ public class MonsterBoxBlockListener implements Listener {
 			}
 			try {
 				CreatureSpawner theSpawner = (CreatureSpawner) event.getBlock().getState();
-				String monster = intmobs.get(new Integer(theSpawner.getSpawnedType().getTypeId()));
+				String monster = entitymobs.get(theSpawner.getSpawnedType());
 				if(plugin.hasPermissions(event.getPlayer(), "monsterbox.drops") || plugin.hasPermissions(event.getPlayer(), "monsterbox.dropegg")) {
 					if(nodrops) {
 						event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "You just broke an " + ChatColor.RED + "unset" + ChatColor.DARK_GREEN + " spawner.");
@@ -64,7 +67,7 @@ public class MonsterBoxBlockListener implements Listener {
 					mcmmofix = true;
 				}
 				if(!nodrops && stringmobs.containsKey(monster) && plugin.hasPermissions(event.getPlayer(), "monsterbox.dropegg." + monster.toLowerCase())) {
-					ItemStack eggstack = new ItemStack(383, 1, theSpawner.getSpawnedType().getTypeId());
+					ItemStack eggstack = SpawnEggs.getSpawnEgg(stringmobs.get(monster), 1);
 					event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), eggstack);
 					mcmmofix = true;
 				}

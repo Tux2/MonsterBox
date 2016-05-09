@@ -1,12 +1,12 @@
 name: MonsterBox
 main: tux2.MonsterBox.MonsterBox
-version: 1.2
+version: 1.3
 commands:
    mbox:
       description: Sets the monster spawner you are looking at to the specified mob type.
       usage: |
        /mbox set <mob name>
-softdepend: [Spout,Vault]
+softdepend: [Spout,Vault,TuxTwoLib]
 
 # SuperPerms data
 permissions:
@@ -59,6 +59,7 @@ permissions:
             monsterbox.spawn.endermite: true
             monsterbox.spawn.guardian: true
             monsterbox.spawn.rabbit: true
+            monsterbox.spawn.shulker: true
     monsterbox.dropegg.*:
         default: op
         description: Gives access to change a mob spawner to any type
@@ -93,6 +94,7 @@ permissions:
             monsterbox.dropegg.endermite: true
             monsterbox.dropegg.guardian: true
             monsterbox.dropegg.rabbit: true
+            monsterbox.dropegg.shulker: true
     monsterbox.eggspawn.*:
         default: op
         description: Gives access to change a mob spawner to any type using eggs
@@ -127,6 +129,7 @@ permissions:
             monsterbox.eggspawn.endermite: true
             monsterbox.eggspawn.guardian: true
             monsterbox.eggspawn.rabbit: true
+            monsterbox.eggspawn.shulker: true
     monsterbox.eggthrow.*:
         default: op
         description: Gives access to change a mob spawner to any type using eggs
@@ -161,6 +164,7 @@ permissions:
             monsterbox.eggthrow.endermite: true
             monsterbox.eggthrow.guardian: true
             monsterbox.eggthrow.rabbit: true
+            monsterbox.eggthrow.shulker: true
     monsterbox.set:
         description: Allows you to set a monster spawner type.
         default: op
@@ -299,6 +303,10 @@ permissions:
         description: Allows you to set any spawner to be a rabbit spawner.
         default: op
         command: "/mbox set rabbit"
+    monsterbox.spawn.shulker:
+        description: Allows you to set any spawner to be a shulker spawner.
+        default: op
+        command: "/mbox set shulker"
     monsterbox.eggspawn.pig:
         description: Allows you to set any spawner to be a pig spawner using eggs.
         default: op
@@ -382,4 +390,7 @@ permissions:
         default: op
     monsterbox.eggspawn.rabbit:
         description: Allows you to set any spawner to be a rabbit spawner using eggs.
+        default: op
+    monsterbox.eggspawn.shulker:
+        description: Allows you to set any spawner to be a shulker spawner using eggs.
         default: op

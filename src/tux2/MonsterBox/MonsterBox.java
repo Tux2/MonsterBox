@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.milkbowl.vault.economy.Economy;
 
@@ -27,7 +29,6 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
@@ -56,12 +57,14 @@ public class MonsterBox extends JavaPlugin {
 	public int buttonwidth = 80;
 	public String version = "0.8";
 	public SpoutStuff ss = null;
-	public HashSet<Byte> transparentBlocks = new HashSet<Byte>();
+	public HashSet<Material> transparentBlocks = new HashSet<Material>();
 	private ConcurrentHashMap<String, String> mobcase = new ConcurrentHashMap<String, String>();
 	public String eggthrowmessage = "I'm sorry, but you can't spawn that mob.";
 	public boolean needssilktouch = false;
 	public double eggprice = 0.0;
 	public boolean separateeggprices = false;
+	public boolean isneweggs = false;
+	public boolean usetuxtwolib = false;
 	public String blocksavefile = "plugins/MonsterBox/disabledspawners.list";
 	public MonsterBox() {
 		super();
@@ -71,18 +74,23 @@ public class MonsterBox extends JavaPlugin {
 		loadDisabledSpawners();
 
 		//Setting transparent blocks.
-		transparentBlocks.add((byte) 0); // Air
-		transparentBlocks.add((byte) 8); // Water
-		transparentBlocks.add((byte) 9); // Stationary Water
-		transparentBlocks.add((byte) 20); // Glass
-		transparentBlocks.add((byte) 30); // Cobweb
-		transparentBlocks.add((byte) 65); // Ladder
-		transparentBlocks.add((byte) 66); // Rail
-		transparentBlocks.add((byte) 78); // Snow
-		transparentBlocks.add((byte) 83); // Sugar Cane
-		transparentBlocks.add((byte) 101); // Iron Bars
-		transparentBlocks.add((byte) 102); // Glass Pane
-		transparentBlocks.add((byte) 106); // Vines
+		transparentBlocks.add(Material.AIR); // Air
+		transparentBlocks.add(Material.WATER); // Water
+		transparentBlocks.add(Material.STATIONARY_WATER); // Stationary Water
+		transparentBlocks.add(Material.GLASS); // Glass
+		transparentBlocks.add(Material.STAINED_GLASS); // Glass
+		transparentBlocks.add(Material.WEB); // Cobweb
+		transparentBlocks.add(Material.LADDER); // Ladder
+		transparentBlocks.add(Material.RAILS); // Rail
+		transparentBlocks.add(Material.ACTIVATOR_RAIL); // Rail
+		transparentBlocks.add(Material.DETECTOR_RAIL); // Rail
+		transparentBlocks.add(Material.POWERED_RAIL); // Rail
+		transparentBlocks.add(Material.SNOW); // Snow
+		transparentBlocks.add(Material.SUGAR_CANE); // Sugar Cane
+		transparentBlocks.add(Material.IRON_FENCE); // Iron Bars
+		transparentBlocks.add(Material.THIN_GLASS); // Glass Pane
+		transparentBlocks.add(Material.STAINED_GLASS_PANE); // Glass Pane
+		transparentBlocks.add(Material.VINE); // Vines
 
 		// NOTE: Event registration should be done in onEnable not here as all events are unregistered when a plugin is disabled
 	}
@@ -198,7 +206,7 @@ public class MonsterBox extends JavaPlugin {
 			}
 			outChannel.close();
 		} catch (Exception e) {
-			System.out.println("[MonsterBox] - Egg prices file creation failed, using defaults.");
+			getLogger().warning("Egg prices file creation failed, using defaults.");
 		}
 
 	}
@@ -206,6 +214,36 @@ public class MonsterBox extends JavaPlugin {
 	public void onEnable() {
 		setupSpout();
 		setupMobCase();
+
+		String[] cbversionstring = getServer().getVersion().split(":");
+		Pattern pmcversion = Pattern.compile("(\\d+)\\.(\\d+)\\.?(\\d*)");
+		Matcher mcmatch = pmcversion.matcher(cbversionstring[1]);
+		if(mcmatch.find()) {
+			try{
+				int majorversion = Integer.parseInt(mcmatch.group(1));
+				int minorversion = Integer.parseInt(mcmatch.group(2));
+				if(majorversion == 1) {
+					if(minorversion > 9) {
+						isneweggs = true;
+						getLogger().info("[MonsterBox] MC 1.9 or above found, enabling version 2 egg handling.");
+					}
+				}else if(majorversion > 1) {
+					isneweggs = true;
+					getLogger().info("[MonsterBox] MC 1.9 or above found, enabling version 2 egg handling.");
+				}
+			}catch (Exception e) {
+				getLogger().severe("[MonsterBox] Unable to get server version! Inaccurate spawn egg handling may occurr!");
+				getLogger().severe("[MonsterBox] Server Version String: " + getServer().getVersion());
+			}
+		}else {
+			getLogger().severe("[MonsterBox] Unable to get server version! Inaccurate spawn egg handling may occurr!");
+			getLogger().severe("[MonsterBox] Server Version String: " + getServer().getVersion());
+		}
+		if(isneweggs) {
+			setupTuxTwoLib();
+		}else {
+			getLogger().severe("This version of MonsterBox only works on Minecraft versions 1.9 or above!");
+		}
 		// Register our events
 		PluginManager pm = getServer().getPluginManager();
 		bl = new MonsterBoxBlockListener(this);
@@ -222,16 +260,9 @@ public class MonsterBox extends JavaPlugin {
 		MonsterBoxCommands commandL = new MonsterBoxCommands(this);
 		PluginCommand batchcommand = this.getCommand("mbox");
 		batchcommand.setExecutor(commandL);
-		// EXAMPLE: Custom code, here we just output some info so we can check all is well
-		PluginDescriptionFile pdfFile = this.getDescription();
-		System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
 	}
 	public void onDisable() {
-
-		// NOTE: All registered events are automatically unregistered when a plugin is disabled
-
-		// EXAMPLE: Custom code, here we just output some info so we can check all is well
-		System.out.println("MonsterBox disabled!");
+		
 	}
 	public boolean isDebugging(final Player player) {
 		if (debugees.containsKey(player)) {
@@ -249,15 +280,26 @@ public class MonsterBox extends JavaPlugin {
 		Plugin p = getServer().getPluginManager().getPlugin("Spout");
 		if(p == null){
 			usespout = null;
-			System.out.println("[MonsterBox] Spout not detected. Disabling spout support.");
+			getLogger().info("Spout not detected. Disabling spout support.");
 		} else {
 			try {
 				usespout = (Spout)p;
 			}catch (Exception e) {
-				System.out.println("[MonsterBox] Error hooking into spout. Disabling spout support.");
+				getLogger().warning("Error hooking into spout. Disabling spout support.");
 			}
-			System.out.println("[MonsterBox] Spout detected. Spout support enabled.");
+			getLogger().info("Spout detected. Spout support enabled.");
 		}
+	}
+	
+	public void setupTuxTwoLib() {
+		Plugin p = getServer().getPluginManager().getPlugin("TuxTwoLib");
+		if(p == null){
+			usetuxtwolib = false;
+			getLogger().severe("TuxTwoLib not detected! Mob eggs will not work in 1.9 or above!");
+		} else {
+			usetuxtwolib = true;
+		}
+		
 	}
 
 	public boolean hasPermissions(Player player, String node) {
@@ -334,12 +376,12 @@ public class MonsterBox extends JavaPlugin {
 
 			}
 		}else {
-			System.out.println("[MonsterBox] Configuration file not found");
+			getLogger().info("Configuration file not found");
 
-			System.out.println("[MonsterBox] + creating folder plugins/MonsterBox");
+			getLogger().info("+ creating folder plugins/MonsterBox");
 			folder.mkdir();
 
-			System.out.println("[MonsterBox] - creating file settings.ini");
+			getLogger().info("- creating file settings.ini");
 			updateIni();
 		}
 	}
@@ -375,7 +417,7 @@ public class MonsterBox extends JavaPlugin {
 					"version = " + version );
 			outChannel.close();
 		} catch (Exception e) {
-			System.out.println("[MonsterBox] - file creation failed, using defaults.");
+			getLogger().warning("- file creation failed, using defaults.");
 		}
 
 	}
